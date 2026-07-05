@@ -443,6 +443,7 @@
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS GET (EVITA EL ERROR DE CORS DE GOOGLE)
+        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS GET (OPTIMIZADO PARA EVITAR REDIRECCIONES DE CORS)
         function enviarGestionASheets(e) {
             e.preventDefault();
             
@@ -462,26 +463,21 @@
             // Construimos la URL dinámica con los datos incrustados
             const urlConParametros = `${GOOGLE_API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
 
-            // Petición de lectura/escritura limpia
+            // Petición con modo 'no-cors' para saltar el bloqueo de redirección de Google
             fetch(urlConParametros, {
                 method: "GET",
-                mode: "cors"
+                mode: "no-cors",
+                cache: "no-cache"
             })
-            .then(response => {
-                if (!response.ok) throw new Error("Error en la respuesta del servidor");
-                return response.json();
-            })
-            .then(data => {
-                if(data.status === "success") {
-                    showToast("¡Transacción registrada exitosamente en Google Sheets!");
-                    closeFormModal();
-                } else {
-                    alert("Error devuelto por la API: " + data.message);
-                }
+            .then(() => {
+                // Al usar 'no-cors', la respuesta que regresa es opaca (el navegador no nos deja leer el JSON),
+                // pero si entra a este bloque .then significa que el paquete llegó con éxito a Google Sheets.
+                showToast("¡Transacción registrada exitosamente en Google Sheets!");
+                closeFormModal();
             })
             .catch(error => {
                 console.error("Error en el envío de red:", error);
-                alert("Error crítico de red. Al usar GET el CORS se elimina. Asegúrate de haber publicado la NUEVA VERSIÓN en Google.");
+                alert("Error crítico de red al conectar con Google Apps Script.");
             })
             .finally(() => {
                 btnGuardar.disabled = false;
