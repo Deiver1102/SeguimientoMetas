@@ -2,51 +2,495 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Prueba de Conexión Claro Tracker</title>
-</head>
-<body>
-    <h2>Formulario de Prueba a Google Sheets</h2>
-    <button onclick="enviarDatosPrueba()">Enviar Transacción de Prueba</button>
-    <p id="resultado">Presiona el botón para probar...</p>
-
-    <script>
-        // REEMPLAZA CON TU URL DE APPS SCRIPT ACTUALIZADA
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
-
-        function enviarDatosPrueba() {
-            document.getElementById("resultado").innerText = "Enviando por túnel seguro...";
-
-            // Tus datos organizados
-            const nombre = encodeURIComponent("Cliente Prueba Bucaramanga");
-            const cedula = encodeURIComponent("1098123456");
-            const turno = encodeURIComponent("E45");
-            const turnoCorrecto = encodeURIComponent("Sí");
-            const accion = encodeURIComponent("Venta");
-            const subtipo = encodeURIComponent("Hogar");
-            const detalles = encodeURIComponent("Triple play Fibra 400MB");
-
-            // Construimos la URL con los parámetros integrados
-            const urlCompleta = `${SCRIPT_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}&callback=miCallback`;
-
-            // Creamos un script temporal para saltar la seguridad del navegador local
-            const script = document.createElement('script');
-            script.src = urlCompleta;
-            
-            // Si hay un error de red masivo
-            script.onerror = function() {
-                document.getElementById("resultado").innerText = "Error al conectar con Google. Verifica los permisos.";
-            };
-
-            document.body.appendChild(script);
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claro Tracker Pro - Dashboard de Cumplimiento</title>
+    <style>
+        :root {
+            --bg-app: #f4f6f9;
+            --surface: #ffffff;
+            --text-main: #1c1e21;
+            --text-muted: #606770;
+            --claro-red: #da291c;
+            --claro-red-hover: #b31d14;
+            --accent-green: #24b24b;
+            --accent-blue: #0076ce;
+            --border-color: #e3e6eb;
+            --radius-lg: 14px;
+            --radius-md: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
-        // Esta función se ejecuta automáticamente cuando Google responde
-        function miCallback(respuesta) {
-            if(respuesta.status === "success") {
-                document.getElementById("resultado").innerText = "¡ÉXITO TOTAL! Fila insertada correctamente en tu Google Sheet.";
-            } else {
-                document.getElementById("resultado").innerText = "Google respondió con un error interno.";
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            font-size: 11pt;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* DISEÑO DE CONTENEDORES - COMPONENTES DINÁMICOS */
+        .dashboard-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .sidebar-right {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 12pt;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* HEADER PREMIUM */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 15px 25px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--claro-red);
+            margin-bottom: 25px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        header h1 { font-size: 15pt; font-weight: 800; color: var(--claro-red); }
+        header p { font-size: 9pt; color: var(--text-muted); }
+
+        /* VENTANA MODAL INTELIGENTE (FORMULARIO) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(28, 30, 33, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-card {
+            background: var(--surface);
+            width: 480px;
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: slideUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* FORMULARIOS Y CAMPOS COMPACTOS */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 9pt;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group { flex: 1; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 10pt;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--claro-red);
+            background-color: var(--surface);
+        }
+
+        /* CAMPOS CONDICIONALES ANIMADOS POR ALTURA */
+        .conditional-field {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out, margin-top 0.2s ease-out;
+        }
+
+        .conditional-field.active {
+            max-height: 120px;
+            margin-top: 10px;
+        }
+
+        /* COMPONENTE DE TURNO ADVERTENCIA */
+        .turn-status-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-app);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            margin-top: 5px;
+        }
+
+        .turn-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+        }
+
+        .turn-indicator.valid { background-color: var(--accent-green); }
+        .turn-indicator.invalid { background-color: var(--claro-red); }
+
+        .turn-text { font-size: 8.5pt; font-weight: 600; color: var(--text-muted); }
+
+        /* BOTONES */
+        button {
+            padding: 10px 16px;
+            font-size: 10pt;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: background 0.1s ease;
+        }
+
+        button.btn-primary {
+            background-color: var(--claro-red);
+            color: white;
+            width: 100%;
+        }
+
+        button.btn-primary:hover { background-color: var(--claro-red-hover); }
+        button.btn-primary:disabled { background-color: var(--text-muted); cursor: not-allowed; }
+
+        button.btn-secondary {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+        }
+
+        button.btn-secondary:hover { background-color: var(--border-color); }
+
+        .shortcut-badge {
+            background: var(--bg-app);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 8pt;
+            color: var(--text-muted);
+        }
+
+        /* NOTIFICACIONES TOAST FLUIDAS */
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            background: #1c1e21;
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-size: 9.5pt;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 200;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Claro Tracker Intelligence</h1>
+            <p>Módulo de Control de Métricas y Turnos CAV</p>
+        </div>
+        <div>
+            <button class="btn-secondary" onclick="openFormModal()">Nueva Gestión <span class="shortcut-badge">Ctrl + N</span></button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <!-- PANEL IZQUIERDO: SECCIÓN DE CUMPLIMIENTO -->
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">Distribución General de la Operación</div>
+                <p style="color: var(--text-muted); font-size: 10pt;">Aquí se estructurará tu panel de KPIs diario/mensual y el calendario avanzado de pendientes en los próximos pasos.</p>
+            </div>
+        </div>
+
+        <!-- PANEL DERECHO: ACCESOS Y NOTIFICACIONES -->
+        <div class="sidebar-right">
+            <div class="card">
+                <div class="card-title">Monitor del Sistema</div>
+                <div style="font-size: 9.5pt; color: var(--text-muted);">
+                    <p style="margin-bottom: 8px;">• Conexión Cloud: <span style="color: var(--accent-green); font-weight: bold;">Activa</span></p>
+                    <p>• Atajo Rápido: <span class="shortcut-badge">Ctrl + N</span> abre el formulario desde cualquier vista.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULARIO MODAL FLUIDO -->
+    <div class="modal-overlay" id="formModal" onclick="closeFormModalOutside(event)">
+        <div class="modal-card">
+            <div class="card-title" style="margin-bottom: 20px;">
+                <span>Registrar Gestión del Turno</span>
+                <span class="shortcut-badge">Esc para cerrar</span>
+            </div>
+            
+            <form id="trackerForm" onsubmit="enviarGestionASheets(event)">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inputNombre">Nombre del Cliente</label>
+                        <input type="text" id="inputNombre" placeholder="Opcional">
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCedula">Cédula / NIT</label>
+                        <input type="text" id="inputCedula" placeholder="Ej: 1098..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inputTurno">Código de Turno</label>
+                        <input type="text" id="inputTurno" placeholder="Ej: E34, A12" required oninput="validarFormatoTurno()">
+                        <div class="turn-status-container">
+                            <div class="turn-indicator" id="turnIndicator"></div>
+                            <span class="turn-text" id="turnText">Escribe un turno...</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTurnoCorrecto">¿Turno Correcto?</label>
+                        <select id="selectTurnoCorrecto">
+                            <option value="Sí">Sí, coincide</option>
+                            <option value="No">No, reasignado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectAccion">Trámite Ejecutado</label>
+                    <select id="selectAccion" required onchange="controlarCamposCondicionales()">
+                        <option value="">Selecciona un trámite...</option>
+                        <option value="Venta">Venta</option>
+                        <option value="Migración">Migración Tecnológica</option>
+                        <option value="Cambio de Titularidad">Cambio de Titularidad</option>
+                        <option value="Traslado">Traslado de Cuenta</option>
+                        <option value="Suspensión">Suspensión Temporal</option>
+                        <option value="Cancelación">Cancelación / Retención</option>
+                    </select>
+                </div>
+
+                <!-- CAMPO CONDICIONAL: SE ABRE SOLO SI ES VENTA -->
+                <div class="conditional-field" id="fieldCondicionalVenta">
+                    <div class="form-group">
+                        <label for="selectSubtipo">Línea de Negocio (Venta)</label>
+                        <select id="selectSubtipo">
+                            <option value="">Selecciona segmento...</option>
+                            <option value="Hogar">Servicios Hogar (Fibra / HFC)</option>
+                            <option value="Pospago">Móvil Pospago</option>
+                            <option value="Equipo">Tecnología / Venta de Equipo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputDetalles">Detalles Adicionales del Caso</label>
+                    <textarea id="inputDetalles" rows="2" placeholder="Ej: Combo 200MB, Portabilidad, Retenido con descuento..."></textarea>
+                </div>
+
+                <div class="flex-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn-secondary" style="flex: 1;" onclick="closeFormModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="flex: 2;" id="btnGuardar">Guardar Gestión (Enter)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICACIÓN -->
+    <div class="toast" id="toastMessage">Gestión guardada con éxito en Google Cloud</div>
+
+    <script>
+        // CONFIGURACIÓN CENTRAL DE LA API
+        // REEMPLAZA ESTA VARIABLE CON TU URL DE GOOGLE APPS SCRIPT QUE COPIASTE DE DRIVE
+        const GOOGLE_API_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI";
+
+        const formModal = document.getElementById("formModal");
+        const trackerForm = document.getElementById("trackerForm");
+
+        // 1. ATALOS DE TECLADO INTELIGENTES (CONTROL + N)
+        window.addEventListener('keydown', function(e) {
+            // Evalúa Ctrl + N o Ctrl + n
+            if (e.ctrlKey && (e.key === 'n' || e.key === 'N')) {
+                e.preventDefault(); // Evita que el navegador abra una pestaña nueva limpia
+                openFormModal();
             }
+            // Tecla de escape para salir del formulario velozmente
+            if (e.key === 'Escape' && formModal.style.display === "flex") {
+                closeFormModal();
+            }
+        });
+
+        function openFormModal() {
+            formModal.style.display = "flex";
+            // Fluidez UX: Auto-enfoca el campo del nombre para empezar a digitar de una
+            setTimeout(() => document.getElementById("inputNombre").focus(), 50);
+        }
+
+        function closeFormModal() {
+            formModal.style.display = "none";
+            trackerForm.reset();
+            document.getElementById("fieldCondicionalVenta").classList.remove("active");
+            validarFormatoTurno(); // Resetea visualmente el validador
+        }
+
+        function closeFormModalOutside(e) {
+            if (e.target === formModal) {
+                closeFormModal();
+            }
+        }
+
+        // 2. LÓGICA CONDICIONAL EFICIENTE (VENTA -> HOGAR/POSPAGO/EQUIPO)
+        function controlarCamposCondicionales() {
+            const accionSeleccionada = document.getElementById("selectAccion").value;
+            const contenedorCondicional = document.getElementById("fieldCondicionalVenta");
+            const selectSubtipo = document.getElementById("selectSubtipo");
+
+            if (accionSeleccionada === "Venta") {
+                contenedorCondicional.classList.add("active");
+                selectSubtipo.setAttribute("required", "required");
+            } else {
+                contenedorCondicional.classList.remove("active");
+                selectSubtipo.removeAttribute("required");
+                selectSubtipo.value = ""; // Limpia si había algo seleccionado antes
+            }
+        }
+
+        // 3. VALIDACIÓN INTELIGENTE DE CÓDIGO DE TURNO
+        function validarFormatoTurno() {
+            const turnoInput = document.getElementById("inputTurno").value.trim().toUpperCase();
+            const indicator = document.getElementById("turnIndicator");
+            const text = document.getElementById("turnText");
+            
+            if (turnoInput === "") {
+                indicator.className = "turn-indicator";
+                indicator.style.backgroundColor = "var(--text-muted)";
+                text.innerText = "Escribe un turno...";
+                return;
+            }
+
+            // Expresión regular: Evalúa que empiece con 1 letra y le sigan entre 1 y 3 números (Ej: A1, E23, F105)
+            const patronTurno = /^[A-Z]{1}[0-9]{1,3}$/;
+
+            if (patronTurno.test(turnoInput)) {
+                indicator.className = "turn-indicator valid";
+                indicator.style.backgroundColor = "var(--accent-green)";
+                text.innerText = "Formato de turno válido";
+            } else {
+                indicator.className = "turn-indicator invalid";
+                indicator.style.backgroundColor = "var(--claro-red)";
+                text.innerText = "Inválido (Ej correcto: E34)";
+            }
+        }
+
+        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
+        function enviarGestionASheets(e) {
+            e.preventDefault();
+            
+            const btnGuardar = document.getElementById("btnGuardar");
+            btnGuardar.disabled = true;
+            btnGuardar.innerText = "Sincronizando...";
+
+            // Captura los datos exactos mapeados con tu Google Sheet
+            const dataset = {
+                nombre: document.getElementById("inputNombre").value.trim(),
+                cedula: document.getElementById("inputCedula").value.trim(),
+                turno: document.getElementById("inputTurno").value.trim().toUpperCase(),
+                turnoCorrecto: document.getElementById("selectTurnoCorrecto").value,
+                accion: document.getElementById("selectAccion").value,
+                subtipo: document.getElementById("selectSubtipo").value,
+                detalles: document.getElementById("inputDetalles").value.trim()
+            };
+
+            // Petición HTTPS nativa limpia hacia tu Apps Script
+            fetch(GOOGLE_API_URL, {
+                method: "POST",
+                body: JSON.stringify(dataset)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === "success") {
+                    showToast("¡Transacción registrada exitosamente en Google Sheets!");
+                    closeFormModal();
+                } else {
+                    alert("Error devuelto por la API: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error en el envío de red:", error);
+                alert("Error crítico de red. Verifica la URL de tu API o los permisos de Google.");
+            })
+            .finally(() => {
+                btnGuardar.disabled = false;
+                btnGuardar.innerText = "Guardar Gestión (Enter)";
+            });
+        }
+
+        // Sistema micro-toast de confirmación
+        function showToast(mensaje) {
+            const toast = document.getElementById("toastMessage");
+            toast.innerText = mensaje;
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 3500);
         }
     </script>
 </body>
