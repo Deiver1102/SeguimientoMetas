@@ -442,6 +442,7 @@
 
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
+        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS GET (EVITA EL ERROR DE CORS DE GOOGLE)
         function enviarGestionASheets(e) {
             e.preventDefault();
             
@@ -449,28 +450,25 @@
             btnGuardar.disabled = true;
             btnGuardar.innerText = "Sincronizando...";
 
-            const dataset = {
-                nombre: document.getElementById("inputNombre").value.trim(),
-                cedula: document.getElementById("inputCedula").value.trim(),
-                turno: document.getElementById("inputTurno").value.trim().toUpperCase(),
-                turnoCorrecto: document.getElementById("selectTurnoCorrecto").value,
-                accion: document.getElementById("selectAccion").value,
-                subtipo: document.getElementById("selectSubtipo").value,
-                detalles: document.getElementById("inputDetalles").value.trim()
-            };
+            // Captura de datos individuales limpios
+            const nombre = encodeURIComponent(document.getElementById("inputNombre").value.trim());
+            const cedula = encodeURIComponent(document.getElementById("inputCedula").value.trim());
+            const turno = encodeURIComponent(document.getElementById("inputTurno").value.trim().toUpperCase());
+            const turnoCorrecto = encodeURIComponent(document.getElementById("selectTurnoCorrecto").value);
+            const accion = encodeURIComponent(document.getElementById("selectAccion").value);
+            const subtipo = encodeURIComponent(document.getElementById("selectSubtipo").value);
+            const detalles = encodeURIComponent(document.getElementById("inputDetalles").value.trim());
 
-            // PETICIÓN OPTIMIZADA CON MANEJO DE REDIRECCIÓN PARA GOOGLE DRIVER
-            fetch(GOOGLE_API_URL, {
-                method: "POST",
-                mode: "cors", // Solicitamos control de acceso explícito
-                redirect: "follow", // ¡CLAVE! Google Apps Script siempre redirige la petición a un servidor temporal
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8" // Usamos text/plain para evitar que el navegador se bloquee con el Preflight antes de tiempo
-                },
-                body: JSON.stringify(dataset)
+            // Construimos la URL dinámica con los datos incrustados
+            const urlConParametros = `${GOOGLE_API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
+
+            // Petición de lectura/escritura limpia
+            fetch(urlConParametros, {
+                method: "GET",
+                mode: "cors"
             })
             .then(response => {
-                if (!response.ok) throw new Error("Respuesta del servidor no exitosa");
+                if (!response.ok) throw new Error("Error en la respuesta del servidor");
                 return response.json();
             })
             .then(data => {
@@ -483,7 +481,7 @@
             })
             .catch(error => {
                 console.error("Error en el envío de red:", error);
-                alert("Error crítico de red. Verifica la URL de tu API o los permisos de Google.");
+                alert("Error crítico de red. Al usar GET el CORS se elimina. Asegúrate de haber publicado la NUEVA VERSIÓN en Google.");
             })
             .finally(() => {
                 btnGuardar.disabled = false;
