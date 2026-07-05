@@ -360,7 +360,7 @@
     <script>
         // CONFIGURACIÓN CENTRAL DE LA API
         // REEMPLAZA ESTA VARIABLE CON TU URL DE GOOGLE APPS SCRIPT QUE COPIASTE DE DRIVE
-        const GOOGLE_API_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI";
+        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
         const formModal = document.getElementById("formModal");
         const trackerForm = document.getElementById("trackerForm");
@@ -441,6 +441,7 @@
         }
 
         // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
+        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
         function enviarGestionASheets(e) {
             e.preventDefault();
             
@@ -448,7 +449,6 @@
             btnGuardar.disabled = true;
             btnGuardar.innerText = "Sincronizando...";
 
-            // Captura los datos exactos mapeados con tu Google Sheet
             const dataset = {
                 nombre: document.getElementById("inputNombre").value.trim(),
                 cedula: document.getElementById("inputCedula").value.trim(),
@@ -459,12 +459,20 @@
                 detalles: document.getElementById("inputDetalles").value.trim()
             };
 
-            // Petición HTTPS nativa limpia hacia tu Apps Script
+            // PETICIÓN OPTIMIZADA CON MANEJO DE REDIRECCIÓN PARA GOOGLE DRIVER
             fetch(GOOGLE_API_URL, {
                 method: "POST",
+                mode: "cors", // Solicitamos control de acceso explícito
+                redirect: "follow", // ¡CLAVE! Google Apps Script siempre redirige la petición a un servidor temporal
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8" // Usamos text/plain para evitar que el navegador se bloquee con el Preflight antes de tiempo
+                },
                 body: JSON.stringify(dataset)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error("Respuesta del servidor no exitosa");
+                return response.json();
+            })
             .then(data => {
                 if(data.status === "success") {
                     showToast("¡Transacción registrada exitosamente en Google Sheets!");
