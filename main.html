@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba de Conexión Claro Tracker</title>
+</head>
+<body>
+    <h2>Formulario de Prueba a Google Sheets</h2>
+    <button onclick="enviarDatosPrueba()">Enviar Transacción de Prueba</button>
+    <p id="resultado">Presiona el botón para probar...</p>
+
+    <script>
+        // REEMPLAZA CON TU URL DE APPS SCRIPT ACTUALIZADA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
+
+        function enviarDatosPrueba() {
+            document.getElementById("resultado").innerText = "Enviando por túnel seguro...";
+
+            // Tus datos organizados
+            const nombre = encodeURIComponent("Cliente Prueba Bucaramanga");
+            const cedula = encodeURIComponent("1098123456");
+            const turno = encodeURIComponent("E45");
+            const turnoCorrecto = encodeURIComponent("Sí");
+            const accion = encodeURIComponent("Venta");
+            const subtipo = encodeURIComponent("Hogar");
+            const detalles = encodeURIComponent("Triple play Fibra 400MB");
+
+            // Construimos la URL con los parámetros integrados
+            const urlCompleta = `${SCRIPT_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}&callback=miCallback`;
+
+            // Creamos un script temporal para saltar la seguridad del navegador local
+            const script = document.createElement('script');
+            script.src = urlCompleta;
+            
+            // Si hay un error de red masivo
+            script.onerror = function() {
+                document.getElementById("resultado").innerText = "Error al conectar con Google. Verifica los permisos.";
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Esta función se ejecuta automáticamente cuando Google responde
+        function miCallback(respuesta) {
+            if(respuesta.status === "success") {
+                document.getElementById("resultado").innerText = "¡ÉXITO TOTAL! Fila insertada correctamente en tu Google Sheet.";
+            } else {
+                document.getElementById("resultado").innerText = "Google respondió con un error interno.";
+            }
+        }
+    </script>
+</body>
+</html>
