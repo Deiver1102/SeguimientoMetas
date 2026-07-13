@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claro Tracker Pro - Dashboard de Cumplimiento</title>
+    <title>Claro Tracker Pro - Dashboard Inteligente</title>
     <style>
         :root {
             --bg-app: #f4f6f9;
@@ -14,6 +14,8 @@
             --claro-red-hover: #b31d14;
             --accent-green: #24b24b;
             --accent-blue: #0076ce;
+            --accent-orange: #ff9200;
+            --accent-purple: #78281f;
             --border-color: #e3e6eb;
             --radius-lg: 14px;
             --radius-md: 8px;
@@ -36,7 +38,24 @@
             overflow-x: hidden;
         }
 
-        /* DISEÑO DE CONTENEDORES - COMPONENTES DINÁMICOS */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            padding: 15px 25px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border-left: 6px solid var(--claro-red);
+            margin-bottom: 25px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        header h1 { font-size: 15pt; font-weight: 800; color: var(--claro-red); }
+        header p { font-size: 9pt; color: var(--text-muted); }
+
         .dashboard-container {
             display: flex;
             gap: 20px;
@@ -44,12 +63,10 @@
             margin: 0 auto;
         }
 
-        .main-content {
-            flex: 1;
-        }
+        .main-content { flex: 1; }
 
         .sidebar-right {
-            width: 320px;
+            width: 340px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -74,26 +91,41 @@
             align-items: center;
         }
 
-        /* HEADER PREMIUM */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--surface);
-            padding: 15px 25px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border-left: 6px solid var(--claro-red);
-            margin-bottom: 25px;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
+        /* COMPONENTES DE BARRAS DE PROGRESO DE METAS */
+        .kpi-group {
+            margin-bottom: 18px;
         }
 
-        header h1 { font-size: 15pt; font-weight: 800; color: var(--claro-red); }
-        header p { font-size: 9pt; color: var(--text-muted); }
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9.5pt;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-        /* VENTANA MODAL INTELIGENTE (FORMULARIO) */
+        .progress-track {
+            height: 12px;
+            background: var(--bg-app);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 6px;
+            transition: width 0.4s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+
+        .fill-hogar { background-color: var(--accent-blue); }
+        .fill-pospago { background-color: var(--accent-green); }
+        .fill-equipo { background-color: var(--accent-orange); }
+        .fill-migracion { background-color: #6f42c1; }
+        .fill-otros { background-color: var(--text-muted); }
+
+        /* MODAL Y FORMULARIO */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -118,24 +150,9 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* FORMULARIOS Y CAMPOS COMPACTOS */
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 9pt;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text-main);
-        }
-
-        .form-row {
-            display: flex;
-            gap: 12px;
-        }
-
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 9pt; font-weight: 700; margin-bottom: 6px; }
+        .form-row { display: flex; gap: 12px; }
         .form-row .form-group { flex: 1; }
 
         input, select, textarea {
@@ -147,7 +164,6 @@
             background-color: var(--bg-app);
             color: var(--text-main);
             outline: none;
-            transition: border-color 0.15s ease;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -155,7 +171,6 @@
             background-color: var(--surface);
         }
 
-        /* CAMPOS CONDICIONALES ANIMADOS POR ALTURA */
         .conditional-field {
             max-height: 0;
             overflow: hidden;
@@ -167,7 +182,6 @@
             margin-top: 10px;
         }
 
-        /* COMPONENTE DE TURNO ADVERTENCIA */
         .turn-status-container {
             display: flex;
             align-items: center;
@@ -178,19 +192,11 @@
             margin-top: 5px;
         }
 
-        .turn-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--text-muted);
-        }
-
+        .turn-indicator { width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); }
         .turn-indicator.valid { background-color: var(--accent-green); }
         .turn-indicator.invalid { background-color: var(--claro-red); }
-
         .turn-text { font-size: 8.5pt; font-weight: 600; color: var(--text-muted); }
 
-        /* BOTONES */
         button {
             padding: 10px 16px;
             font-size: 10pt;
@@ -198,23 +204,11 @@
             border-radius: var(--radius-md);
             border: none;
             cursor: pointer;
-            transition: background 0.1s ease;
         }
 
-        button.btn-primary {
-            background-color: var(--claro-red);
-            color: white;
-            width: 100%;
-        }
-
+        button.btn-primary { background-color: var(--claro-red); color: white; width: 100%; }
         button.btn-primary:hover { background-color: var(--claro-red-hover); }
-        button.btn-primary:disabled { background-color: var(--text-muted); cursor: not-allowed; }
-
-        button.btn-secondary {
-            background-color: var(--bg-app);
-            color: var(--text-main);
-        }
-
+        button.btn-secondary { background-color: var(--bg-app); color: var(--text-main); }
         button.btn-secondary:hover { background-color: var(--border-color); }
 
         .shortcut-badge {
@@ -226,7 +220,6 @@
             color: var(--text-muted);
         }
 
-        /* NOTIFICACIONES TOAST FLUIDAS */
         .toast {
             position: fixed;
             bottom: 20px; right: 20px;
@@ -236,7 +229,6 @@
             border-radius: var(--radius-md);
             font-size: 9.5pt;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             display: none;
             z-index: 200;
         }
@@ -250,33 +242,44 @@
             <p>Módulo de Control de Métricas y Turnos CAV</p>
         </div>
         <div>
-            <button class="btn-secondary" onclick="openFormModal()">Nueva Gestión <span class="shortcut-badge">Ctrl + N</span></button>
+            <button class="btn-secondary" onclick="openFormModal()">Nueva Gestión <span class="shortcut-badge">Shift + N</span></button>
+            <button class="btn-secondary" onclick="cargarDatosDashboard()" style="margin-left: 8px;">🔄 Sincronizar</button>
         </div>
     </header>
 
     <div class="dashboard-container">
         
-        <!-- PANEL IZQUIERDO: SECCIÓN DE CUMPLIMIENTO -->
         <div class="main-content">
             <div class="card">
-                <div class="card-title">Distribución General de la Operación</div>
-                <p style="color: var(--text-muted); font-size: 10pt;">Aquí se estructurará tu panel de KPIs diario/mensual y el calendario avanzado de pendientes en los próximos pasos.</p>
+                <div class="card-title">
+                    <span>Cumplimiento de Metas Mensuales</span>
+                    <span id="mesActualLabel" style="font-size: 9.5pt; color: var(--text-muted);">Cargando...</span>
+                </div>
+                <div id="kpiContainer">
+                    <p style="color: var(--text-muted); font-size: 10pt;">Cargando métricas desde Google Cloud...</p>
+                </div>
             </div>
         </div>
 
-        <!-- PANEL DERECHO: ACCESOS Y NOTIFICACIONES -->
         <div class="sidebar-right">
             <div class="card">
-                <div class="card-title">Monitor del Sistema</div>
-                <div style="font-size: 9.5pt; color: var(--text-muted);">
-                    <p style="margin-bottom: 8px;">• Conexión Cloud: <span style="color: var(--accent-green); font-weight: bold;">Activa</span></p>
-                    <p>• Atajo Rápido: <span class="shortcut-badge">Ctrl + N</span> abre el formulario desde cualquier vista.</p>
+                <div class="card-title">Resumen Operativo Hoy</div>
+                <div id="resumenHoyContainer" style="font-size: 9.5pt; color: var(--text-muted);">
+                    <p>• Cargando registros del día...</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">Atajos y Teclado</div>
+                <div style="font-size: 9pt; color: var(--text-muted); line-height: 1.6;">
+                    <p>• <span class="shortcut-badge">Shift + N</span> Abrir Formulario</p>
+                    <p>• <span class="shortcut-badge">Esc</span> Cerrar Formulario</p>
+                    <p>• <span class="shortcut-badge">Enter</span> Guardar Turno</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- FORMULARIO MODAL FLUIDO -->
     <div class="modal-overlay" id="formModal" onclick="closeFormModalOutside(event)">
         <div class="modal-card">
             <div class="card-title" style="margin-bottom: 20px;">
@@ -285,7 +288,6 @@
             </div>
             
             <form id="trackerForm" onsubmit="enviarGestionASheets(event)">
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="inputNombre">Nombre del Cliente</label>
@@ -328,7 +330,6 @@
                     </select>
                 </div>
 
-                <!-- CAMPO CONDICIONAL: SE ABRE SOLO SI ES VENTA -->
                 <div class="conditional-field" id="fieldCondicionalVenta">
                     <div class="form-group">
                         <label for="selectSubtipo">Línea de Negocio (Venta)</label>
@@ -343,10 +344,10 @@
 
                 <div class="form-group">
                     <label for="inputDetalles">Detalles Adicionales del Caso</label>
-                    <textarea id="inputDetalles" rows="2" placeholder="Ej: Combo 200MB, Portabilidad, Retenido con descuento..."></textarea>
+                    <textarea id="inputDetalles" rows="2" placeholder="Ej: Combo 200MB, Portabilidad, Retenido..."></textarea>
                 </div>
 
-                <div class="flex-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="button" class="btn-secondary" style="flex: 1;" onclick="closeFormModal()">Cancelar</button>
                     <button type="submit" class="btn-primary" style="flex: 2;" id="btnGuardar">Guardar Gestión (Enter)</button>
                 </div>
@@ -354,25 +355,23 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICACIÓN -->
     <div class="toast" id="toastMessage">Gestión guardada con éxito en Google Cloud</div>
 
     <script>
-        // CONFIGURACIÓN CENTRAL DE LA API
-        // REEMPLAZA ESTA VARIABLE CON TU URL DE GOOGLE APPS SCRIPT QUE COPIASTE DE DRIVE
         const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
         const formModal = document.getElementById("formModal");
         const trackerForm = document.getElementById("trackerForm");
 
-        // 1. ATALOS DE TECLADO INTELIGENTES (CONTROL + N)
+        // 1. NUEVO ATAJO MEJORADO: SHIFT + N (Evita conflicto con el navegador)
         window.addEventListener('keydown', function(e) {
-            // Evalúa Ctrl + N o Ctrl + n
-            if (e.ctrlKey && (e.key === 'n' || e.key === 'N')) {
-                e.preventDefault(); // Evita que el navegador abra una pestaña nueva limpia
-                openFormModal();
+            if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
+                // Previene que se escriba 'N' mayúscula si el foco cae en un input
+                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    openFormModal();
+                }
             }
-            // Tecla de escape para salir del formulario velozmente
             if (e.key === 'Escape' && formModal.style.display === "flex") {
                 closeFormModal();
             }
@@ -380,7 +379,6 @@
 
         function openFormModal() {
             formModal.style.display = "flex";
-            // Fluidez UX: Auto-enfoca el campo del nombre para empezar a digitar de una
             setTimeout(() => document.getElementById("inputNombre").focus(), 50);
         }
 
@@ -388,16 +386,13 @@
             formModal.style.display = "none";
             trackerForm.reset();
             document.getElementById("fieldCondicionalVenta").classList.remove("active");
-            validarFormatoTurno(); // Resetea visualmente el validador
+            validarFormatoTurno();
         }
 
         function closeFormModalOutside(e) {
-            if (e.target === formModal) {
-                closeFormModal();
-            }
+            if (e.target === formModal) closeFormModal();
         }
 
-        // 2. LÓGICA CONDICIONAL EFICIENTE (VENTA -> HOGAR/POSPAGO/EQUIPO)
         function controlarCamposCondicionales() {
             const accionSeleccionada = document.getElementById("selectAccion").value;
             const contenedorCondicional = document.getElementById("fieldCondicionalVenta");
@@ -409,11 +404,10 @@
             } else {
                 contenedorCondicional.classList.remove("active");
                 selectSubtipo.removeAttribute("required");
-                selectSubtipo.value = ""; // Limpia si había algo seleccionado antes
+                selectSubtipo.value = "";
             }
         }
 
-        // 3. VALIDACIÓN INTELIGENTE DE CÓDIGO DE TURNO
         function validarFormatoTurno() {
             const turnoInput = document.getElementById("inputTurno").value.trim().toUpperCase();
             const indicator = document.getElementById("turnIndicator");
@@ -426,9 +420,7 @@
                 return;
             }
 
-            // Expresión regular: Evalúa que empiece con 1 letra y le sigan entre 1 y 3 números (Ej: A1, E23, F105)
             const patronTurno = /^[A-Z]{1}[0-9]{1,3}$/;
-
             if (patronTurno.test(turnoInput)) {
                 indicator.className = "turn-indicator valid";
                 indicator.style.backgroundColor = "var(--accent-green)";
@@ -436,22 +428,97 @@
             } else {
                 indicator.className = "turn-indicator invalid";
                 indicator.style.backgroundColor = "var(--claro-red)";
-                text.innerText = "Inválido (Ej correcto: E34)";
+                text.innerText = "Inválido (Ej: E34)";
             }
         }
 
-        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
-        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS POST (CERO RECARGA DE PÁGINA)
-        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS GET (EVITA EL ERROR DE CORS DE GOOGLE)
-        // 4. ENVÍO DE DATOS ASÍNCRONO POR HTTPS GET (OPTIMIZADO PARA EVITAR REDIRECCIONES DE CORS)
+        // 2. LECTURA Y CÁLCULO DE DASHBOARD
+        function cargarDatosDashboard() {
+            const currentMonthStr = new Date().toISOString().substring(0, 7); // "2026-07"
+            const todayStr = new Date().toISOString().substring(0, 10); // "2026-07-13"
+            document.getElementById("mesActualLabel").innerText = "Período: " + currentMonthStr;
+
+            fetch(GOOGLE_API_URL, { method: "GET", mode: "cors" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    const gestiones = data.gestiones || [];
+                    const metas = data.metas || [];
+
+                    // Buscar meta del mes actual o usar default
+                    const metaMes = metas.find(m => String(m.Mes).trim() === currentMonthStr) || {
+                        Meta_Ventas_Hogar: 20,
+                        Meta_Ventas_Pospago: 30,
+                        Meta_Ventas_Equipo: 10,
+                        Meta_Migraciones: 25,
+                        Meta_Otros: 40
+                    };
+
+                    // Filtrar gestiones del mes
+                    const gestionesMes = gestiones.filter(g => g.Fecha && g.Fecha.startsWith(currentMonthStr));
+                    const gestionesHoy = gestiones.filter(g => g.Fecha === todayStr);
+
+                    // Conteo de trámites
+                    let cantHogar = 0, cantPospago = 0, cantEquipo = 0, cantMigracion = 0, cantOtros = 0;
+
+                    gestionesMes.forEach(g => {
+                        if (g.Accion === "Venta") {
+                            if (g.Subtipo === "Hogar") cantHogar++;
+                            if (g.Subtipo === "Pospago") cantPospago++;
+                            if (g.Subtipo === "Equipo") cantEquipo++;
+                        } else if (g.Accion === "Migración") {
+                            cantMigracion++;
+                        } else {
+                            cantOtros++;
+                        }
+                    });
+
+                    // Renderizar Barras de Progreso
+                    const htmlKPIs = `
+                        ${renderBar("Ventas Hogar (Fibra / HFC)", cantHogar, metaMes.Meta_Ventas_Hogar, "fill-hogar")}
+                        ${renderBar("Ventas Móvil Pospago", cantPospago, metaMes.Meta_Ventas_Pospago, "fill-pospago")}
+                        ${renderBar("Ventas Tecnología / Equipos", cantEquipo, metaMes.Meta_Ventas_Equipo, "fill-equipo")}
+                        ${renderBar("Migraciones Tecnológicas", cantMigracion, metaMes.Meta_Migraciones, "fill-migracion")}
+                        ${renderBar("Otros Trámites Operativos", cantOtros, metaMes.Meta_Otros, "fill-otros")}
+                    `;
+                    document.getElementById("kpiContainer").innerHTML = htmlKPIs;
+
+                    // Renderizar Resumen del Día
+                    document.getElementById("resumenHoyContainer").innerHTML = `
+                        <p style="margin-bottom:6px;">• Turnos Atendidos Hoy: <b>${gestionesHoy.length}</b></p>
+                        <p style="margin-bottom:6px;">• Ventas Hoy: <b>${gestionesHoy.filter(g => g.Accion === 'Venta').length}</b></p>
+                        <p>• Migraciones Hoy: <b>${gestionesHoy.filter(g => g.Accion === 'Migración').length}</b></p>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Error cargando dashboard:", err);
+                document.getElementById("kpiContainer").innerHTML = "<p style='color:var(--claro-red); font-size:9.5pt;'>Error al sincronizar dashboard. Revisa tu conexión.</p>";
+            });
+        }
+
+        function renderBar(titulo, actual, meta, claseFill) {
+            const pct = meta > 0 ? Math.min(100, Math.round((actual / meta) * 100)) : 0;
+            return `
+                <div class="kpi-group">
+                    <div class="kpi-header">
+                        <span>${titulo}</span>
+                        <span>${actual} / ${meta} (${pct}%)</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill ${claseFill}" style="width: ${pct}%;"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. ENVÍO DE DATOS
         function enviarGestionASheets(e) {
             e.preventDefault();
-            
             const btnGuardar = document.getElementById("btnGuardar");
             btnGuardar.disabled = true;
             btnGuardar.innerText = "Sincronizando...";
 
-            // Captura de datos individuales limpios
             const nombre = encodeURIComponent(document.getElementById("inputNombre").value.trim());
             const cedula = encodeURIComponent(document.getElementById("inputCedula").value.trim());
             const turno = encodeURIComponent(document.getElementById("inputTurno").value.trim().toUpperCase());
@@ -460,24 +527,17 @@
             const subtipo = encodeURIComponent(document.getElementById("selectSubtipo").value);
             const detalles = encodeURIComponent(document.getElementById("inputDetalles").value.trim());
 
-            // Construimos la URL dinámica con los datos incrustados
             const urlConParametros = `${GOOGLE_API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
 
-            // Petición con modo 'no-cors' para saltar el bloqueo de redirección de Google
-            fetch(urlConParametros, {
-                method: "GET",
-                mode: "no-cors",
-                cache: "no-cache"
-            })
+            fetch(urlConParametros, { method: "GET", mode: "no-cors", cache: "no-cache" })
             .then(() => {
-                // Al usar 'no-cors', la respuesta que regresa es opaca (el navegador no nos deja leer el JSON),
-                // pero si entra a este bloque .then significa que el paquete llegó con éxito a Google Sheets.
-                showToast("¡Transacción registrada exitosamente en Google Sheets!");
+                showToast("¡Gestión registrada exitosamente!");
                 closeFormModal();
+                setTimeout(cargarDatosDashboard, 1000); // Recarga métricas automáticamente
             })
             .catch(error => {
-                console.error("Error en el envío de red:", error);
-                alert("Error crítico de red al conectar con Google Apps Script.");
+                console.error("Error:", error);
+                alert("Error de red al registrar gestión.");
             })
             .finally(() => {
                 btnGuardar.disabled = false;
@@ -485,15 +545,15 @@
             });
         }
 
-        // Sistema micro-toast de confirmación
         function showToast(mensaje) {
             const toast = document.getElementById("toastMessage");
             toast.innerText = mensaje;
             toast.style.display = "block";
-            setTimeout(() => {
-                toast.style.display = "none";
-            }, 3500);
+            setTimeout(() => { toast.style.display = "none"; }, 3500);
         }
+
+        // Cargar Dashboard al iniciar
+        window.onload = cargarDatosDashboard;
     </script>
 </body>
 </html>
