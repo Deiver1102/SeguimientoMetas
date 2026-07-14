@@ -375,15 +375,25 @@
             const currentMonth = new Date().toISOString().substring(0, 7);
             document.getElementById("mesLabel").innerText = currentMonth;
 
-            fetch(API_URL, { method: "GET", mode: "cors" })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    renderTabla(data.gestiones || []);
-                    renderKPIs(data.gestiones || [], data.metas || [], currentMonth);
-                }
-            })
-            .catch(err => console.error("Error cargando Digiver:", err));
+            // Eliminamos scripts antiguos de lectura si existen
+            const oldScript = document.getElementById("jsonpScript");
+            if (oldScript) oldScript.remove();
+
+            // Creamos la petición limpia
+            const script = document.createElement("script");
+            script.id = "jsonpScript";
+            script.src = `${API_URL}?callback=procesarDatosDigiver&_=${Date.now()}`;
+            script.onerror = function() {
+                console.error("Error al conectar con la API de Digiver");
+            };
+            document.body.appendChild(script);
+        }
+        function procesarDatosDigiver(data) {
+            if (data && data.status === "success") {
+                const currentMonth = new Date().toISOString().substring(0, 7);
+                renderTabla(data.gestiones || []);
+                renderKPIs(data.gestiones || [], data.metas || [], currentMonth);
+            }
         }
 
         function renderTabla(gestiones) {
