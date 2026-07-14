@@ -3,557 +3,494 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claro Tracker Pro - Dashboard Inteligente</title>
+    <title>Digiver — Operational Workspace</title>
     <style>
         :root {
-            --bg-app: #f4f6f9;
-            --surface: #ffffff;
-            --text-main: #1c1e21;
-            --text-muted: #606770;
-            --claro-red: #da291c;
-            --claro-red-hover: #b31d14;
-            --accent-green: #24b24b;
-            --accent-blue: #0076ce;
-            --accent-orange: #ff9200;
-            --accent-purple: #78281f;
-            --border-color: #e3e6eb;
-            --radius-lg: 14px;
-            --radius-md: 8px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            --bg-app: #0f1115;
+            --surface: #161920;
+            --surface-hover: #1e222d;
+            --text-main: #f0f2f5;
+            --text-muted: #8a94a6;
+            --accent-primary: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+            --border: #262b36;
+            --radius-md: 10px;
+            --radius-sm: 6px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-app);
             color: var(--text-main);
-            font-size: 11pt;
-            padding: 20px;
-            overflow-x: hidden;
+            font-size: 10.5pt;
+            padding: 24px;
         }
 
-        header {
+        .workspace-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--surface);
-            padding: 15px 25px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            border-left: 6px solid var(--claro-red);
-            margin-bottom: 25px;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 1350px;
+            margin: 0 auto 24px auto;
         }
 
-        header h1 { font-size: 15pt; font-weight: 800; color: var(--claro-red); }
-        header p { font-size: 9pt; color: var(--text-muted); }
-
-        .dashboard-container {
+        .brand-logo {
             display: flex;
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .main-content { flex: 1; }
-
-        .sidebar-right {
-            width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .card {
-            background-color: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 12pt;
-            font-weight: 700;
-            margin-bottom: 15px;
-            color: var(--text-main);
-            display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
-        /* COMPONENTES DE BARRAS DE PROGRESO DE METAS */
-        .kpi-group {
-            margin-bottom: 18px;
-        }
-
-        .kpi-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9.5pt;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .progress-track {
+        .brand-logo .dot {
+            width: 12px;
             height: 12px;
-            background: var(--bg-app);
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
+            background-color: var(--accent-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent-primary);
         }
 
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 6px;
-            transition: width 0.4s cubic-bezier(0.1, 1, 0.1, 1);
-        }
-
-        .fill-hogar { background-color: var(--accent-blue); }
-        .fill-pospago { background-color: var(--accent-green); }
-        .fill-equipo { background-color: var(--accent-orange); }
-        .fill-migracion { background-color: #6f42c1; }
-        .fill-otros { background-color: var(--text-muted); }
-
-        /* MODAL Y FORMULARIO */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(28, 30, 33, 0.4);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-card {
-            background: var(--surface);
-            width: 480px;
-            border-radius: var(--radius-lg);
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            animation: slideUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(15px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 9pt; font-weight: 700; margin-bottom: 6px; }
-        .form-row { display: flex; gap: 12px; }
-        .form-row .form-group { flex: 1; }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 12px;
-            font-size: 10pt;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background-color: var(--bg-app);
+        .brand-logo h1 {
+            font-size: 16pt;
+            font-weight: 700;
+            letter-spacing: -0.5px;
             color: var(--text-main);
-            outline: none;
         }
 
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--claro-red);
-            background-color: var(--surface);
-        }
-
-        .conditional-field {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.2s ease-out, margin-top 0.2s ease-out;
-        }
-
-        .conditional-field.active {
-            max-height: 120px;
-            margin-top: 10px;
-        }
-
-        .turn-status-container {
+        .header-actions {
             display: flex;
-            align-items: center;
             gap: 10px;
-            background: var(--bg-app);
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
-            margin-top: 5px;
         }
-
-        .turn-indicator { width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); }
-        .turn-indicator.valid { background-color: var(--accent-green); }
-        .turn-indicator.invalid { background-color: var(--claro-red); }
-        .turn-text { font-size: 8.5pt; font-weight: 600; color: var(--text-muted); }
 
         button {
-            padding: 10px 16px;
-            font-size: 10pt;
-            font-weight: 700;
-            border-radius: var(--radius-md);
-            border: none;
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 9.5pt;
+            font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
         }
 
-        button.btn-primary { background-color: var(--claro-red); color: white; width: 100%; }
-        button.btn-primary:hover { background-color: var(--claro-red-hover); }
-        button.btn-secondary { background-color: var(--bg-app); color: var(--text-main); }
-        button.btn-secondary:hover { background-color: var(--border-color); }
+        button:hover {
+            background: var(--surface-hover);
+            border-color: #374151;
+        }
 
-        .shortcut-badge {
-            background: var(--bg-app);
-            padding: 3px 6px;
+        button.btn-primary {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        button.btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .badge-shortcut {
+            background: rgba(255,255,255,0.15);
+            padding: 2px 5px;
             border-radius: 4px;
             font-family: monospace;
             font-size: 8pt;
+        }
+
+        .workspace-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            max-width: 1350px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+
+        .panel-header {
+            font-weight: 700;
+            font-size: 11pt;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* TABLA Y FILA DE INSERCIÓN EN LÍNEA */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .digiver-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        .digiver-table th {
+            padding: 10px 12px;
             color: var(--text-muted);
+            font-size: 8.5pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .digiver-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 9.5pt;
+        }
+
+        /* ANIMACIÓN DE ENTRADA DE FILA */
+        .inline-editor-row {
+            background: #1c2230;
+            display: none;
+            animation: expandRow 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .inline-editor-row.active {
+            display: table-row;
+        }
+
+        @keyframes expandRow {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .inline-editor-row input, .inline-editor-row select {
+            width: 100%;
+            background: var(--bg-app);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 9pt;
+            outline: none;
+        }
+
+        .inline-editor-row input:focus, .inline-editor-row select:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* METAS Y BARRAS DE PROGRESO */
+        .kpi-item {
+            margin-bottom: 16px;
+        }
+
+        .kpi-meta-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .kpi-bar-bg {
+            height: 8px;
+            background: var(--bg-app);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .kpi-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-primary);
+            border-radius: 4px;
+            transition: width 0.4s ease;
         }
 
         .toast {
             position: fixed;
-            bottom: 20px; right: 20px;
-            background: #1c1e21;
+            bottom: 24px;
+            right: 24px;
+            background: var(--accent-green);
             color: white;
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            font-size: 9.5pt;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 9pt;
             font-weight: 600;
             display: none;
-            z-index: 200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div>
-            <h1>Claro Tracker Intelligence</h1>
-            <p>Módulo de Control de Métricas y Turnos CAV</p>
+    <div class="workspace-header">
+        <div class="brand-logo">
+            <div class="dot"></div>
+            <h1>Digiver</h1>
         </div>
-        <div>
-            <button class="btn-secondary" onclick="openFormModal()">Nueva Gestión <span class="shortcut-badge">Shift + N</span></button>
-            <button class="btn-secondary" onclick="cargarDatosDashboard()" style="margin-left: 8px;">🔄 Sincronizar</button>
+        <div class="header-actions">
+            <button onclick="toggleInlineEditor()">+ Nueva Gestión <span class="badge-shortcut">Shift + N</span></button>
+            <button onclick="cargarDatos()">🔄 Sincronizar</button>
         </div>
-    </header>
+    </div>
 
-    <div class="dashboard-container">
+    <div class="workspace-layout">
         
-        <div class="main-content">
-            <div class="card">
-                <div class="card-title">
-                    <span>Cumplimiento de Metas Mensuales</span>
-                    <span id="mesActualLabel" style="font-size: 9.5pt; color: var(--text-muted);">Cargando...</span>
-                </div>
-                <div id="kpiContainer">
-                    <p style="color: var(--text-muted); font-size: 10pt;">Cargando métricas desde Google Cloud...</p>
-                </div>
+        <!-- PANEL PRINCIPAL: TABLA VIVA -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>Registro de Gestiones</span>
+                <span id="totalGestionesLabel" style="color: var(--text-muted); font-weight: normal; font-size: 9pt;">0 registros</span>
+            </div>
+
+            <div class="table-container">
+                <table class="digiver-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">Cliente</th>
+                            <th style="width: 110px;">Cédula</th>
+                            <th style="width: 90px;">Turno</th>
+                            <th style="width: 120px;">Trámite</th>
+                            <th style="width: 110px;">Subtipo</th>
+                            <th>Detalles</th>
+                            <th style="width: 80px;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- FILA EN LÍNEA DE INSERCIÓN DINÁMICA -->
+                        <tr class="inline-editor-row" id="inlineRow">
+                            <td><input type="text" id="inNombre" placeholder="Nombre..." id="firstInput"></td>
+                            <td><input type="text" id="inCedula" placeholder="Cédula..."></td>
+                            <td><input type="text" id="inTurno" placeholder="Ej: E34" style="text-transform: uppercase;"></td>
+                            <td>
+                                <select id="inAccion" onchange="handleAccionChange()">
+                                    <option value="Venta">Venta</option>
+                                    <option value="Migración">Migración</option>
+                                    <option value="Titularidad">Titularidad</option>
+                                    <option value="Traslado">Traslado</option>
+                                    <option value="Suspensión">Suspensión</option>
+                                    <option value="Cancelación">Cancelación</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select id="inSubtipo">
+                                    <option value="Hogar">Hogar</option>
+                                    <option value="Pospago">Pospago</option>
+                                    <option value="Equipo">Equipo</option>
+                                </select>
+                            </td>
+                            <td><input type="text" id="inDetalles" placeholder="Notas adicionales..." onkeydown="handleKeyDown(event)"></td>
+                            <td>
+                                <button class="btn-primary" style="padding: 5px 10px; font-size: 8.5pt;" onclick="guardarRegistroInline()">Guardar</button>
+                            </td>
+                        </tr>
+
+                        <!-- CONTENIDO DINÁMICO CACHEADO -->
+                        <tbody id="tableBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Sincronizando con Digiver Cloud...</td></tr>
+                        </tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="sidebar-right">
-            <div class="card">
-                <div class="card-title">Resumen Operativo Hoy</div>
-                <div id="resumenHoyContainer" style="font-size: 9.5pt; color: var(--text-muted);">
-                    <p>• Cargando registros del día...</p>
-                </div>
+        <!-- PANEL DERECHO: METAS Y CUMPLIMIENTO -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>Cumplimiento de Metas</span>
+                <span id="mesLabel" style="color: var(--text-muted); font-size: 8.5pt;">-</span>
             </div>
-            
-            <div class="card">
-                <div class="card-title">Atajos y Teclado</div>
-                <div style="font-size: 9pt; color: var(--text-muted); line-height: 1.6;">
-                    <p>• <span class="shortcut-badge">Shift + N</span> Abrir Formulario</p>
-                    <p>• <span class="shortcut-badge">Esc</span> Cerrar Formulario</p>
-                    <p>• <span class="shortcut-badge">Enter</span> Guardar Turno</p>
-                </div>
+
+            <div id="kpiList">
+                <p style="color: var(--text-muted); font-size: 9pt;">Cargando objetivos...</p>
             </div>
         </div>
+
     </div>
 
-    <div class="modal-overlay" id="formModal" onclick="closeFormModalOutside(event)">
-        <div class="modal-card">
-            <div class="card-title" style="margin-bottom: 20px;">
-                <span>Registrar Gestión del Turno</span>
-                <span class="shortcut-badge">Esc para cerrar</span>
-            </div>
-            
-            <form id="trackerForm" onsubmit="enviarGestionASheets(event)">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="inputNombre">Nombre del Cliente</label>
-                        <input type="text" id="inputNombre" placeholder="Opcional">
-                    </div>
-                    <div class="form-group">
-                        <label for="inputCedula">Cédula / NIT</label>
-                        <input type="text" id="inputCedula" placeholder="Ej: 1098..." autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="inputTurno">Código de Turno</label>
-                        <input type="text" id="inputTurno" placeholder="Ej: E34, A12" required oninput="validarFormatoTurno()">
-                        <div class="turn-status-container">
-                            <div class="turn-indicator" id="turnIndicator"></div>
-                            <span class="turn-text" id="turnText">Escribe un turno...</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="selectTurnoCorrecto">¿Turno Correcto?</label>
-                        <select id="selectTurnoCorrecto">
-                            <option value="Sí">Sí, coincide</option>
-                            <option value="No">No, reasignado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="selectAccion">Trámite Ejecutado</label>
-                    <select id="selectAccion" required onchange="controlarCamposCondicionales()">
-                        <option value="">Selecciona un trámite...</option>
-                        <option value="Venta">Venta</option>
-                        <option value="Migración">Migración Tecnológica</option>
-                        <option value="Cambio de Titularidad">Cambio de Titularidad</option>
-                        <option value="Traslado">Traslado de Cuenta</option>
-                        <option value="Suspensión">Suspensión Temporal</option>
-                        <option value="Cancelación">Cancelación / Retención</option>
-                    </select>
-                </div>
-
-                <div class="conditional-field" id="fieldCondicionalVenta">
-                    <div class="form-group">
-                        <label for="selectSubtipo">Línea de Negocio (Venta)</label>
-                        <select id="selectSubtipo">
-                            <option value="">Selecciona segmento...</option>
-                            <option value="Hogar">Servicios Hogar (Fibra / HFC)</option>
-                            <option value="Pospago">Móvil Pospago</option>
-                            <option value="Equipo">Tecnología / Venta de Equipo</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="inputDetalles">Detalles Adicionales del Caso</label>
-                    <textarea id="inputDetalles" rows="2" placeholder="Ej: Combo 200MB, Portabilidad, Retenido..."></textarea>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn-secondary" style="flex: 1;" onclick="closeFormModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary" style="flex: 2;" id="btnGuardar">Guardar Gestión (Enter)</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="toast" id="toastMessage">Gestión guardada con éxito en Google Cloud</div>
+    <div class="toast" id="toast">Transacción guardada exitosamente</div>
 
     <script>
-        const GOOGLE_API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
-        const formModal = document.getElementById("formModal");
-        const trackerForm = document.getElementById("trackerForm");
-
-        // 1. NUEVO ATAJO MEJORADO: SHIFT + N (Evita conflicto con el navegador)
-        window.addEventListener('keydown', function(e) {
+        // TECLADO: SHIFT + N Y ESCAPE
+        window.addEventListener('keydown', (e) => {
             if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
-                // Previene que se escriba 'N' mayúscula si el foco cae en un input
                 if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                     e.preventDefault();
-                    openFormModal();
+                    toggleInlineEditor(true);
                 }
             }
-            if (e.key === 'Escape' && formModal.style.display === "flex") {
-                closeFormModal();
+            if (e.key === 'Escape') {
+                toggleInlineEditor(false);
             }
         });
 
-        function openFormModal() {
-            formModal.style.display = "flex";
-            setTimeout(() => document.getElementById("inputNombre").focus(), 50);
-        }
-
-        function closeFormModal() {
-            formModal.style.display = "none";
-            trackerForm.reset();
-            document.getElementById("fieldCondicionalVenta").classList.remove("active");
-            validarFormatoTurno();
-        }
-
-        function closeFormModalOutside(e) {
-            if (e.target === formModal) closeFormModal();
-        }
-
-        function controlarCamposCondicionales() {
-            const accionSeleccionada = document.getElementById("selectAccion").value;
-            const contenedorCondicional = document.getElementById("fieldCondicionalVenta");
-            const selectSubtipo = document.getElementById("selectSubtipo");
-
-            if (accionSeleccionada === "Venta") {
-                contenedorCondicional.classList.add("active");
-                selectSubtipo.setAttribute("required", "required");
+        function toggleInlineEditor(forceState) {
+            const row = document.getElementById("inlineRow");
+            const isVisible = row.classList.contains("active");
+            
+            if (forceState === false || (forceState === undefined && isVisible)) {
+                row.classList.remove("active");
             } else {
-                contenedorCondicional.classList.remove("active");
-                selectSubtipo.removeAttribute("required");
+                row.classList.add("active");
+                setTimeout(() => document.getElementById("inNombre").focus(), 50);
+            }
+        }
+
+        function handleAccionChange() {
+            const accion = document.getElementById("inAccion").value;
+            const selectSubtipo = document.getElementById("inSubtipo");
+            if (accion === "Venta") {
+                selectSubtipo.disabled = false;
+            } else {
+                selectSubtipo.disabled = true;
                 selectSubtipo.value = "";
             }
         }
 
-        function validarFormatoTurno() {
-            const turnoInput = document.getElementById("inputTurno").value.trim().toUpperCase();
-            const indicator = document.getElementById("turnIndicator");
-            const text = document.getElementById("turnText");
-            
-            if (turnoInput === "") {
-                indicator.className = "turn-indicator";
-                indicator.style.backgroundColor = "var(--text-muted)";
-                text.innerText = "Escribe un turno...";
-                return;
-            }
-
-            const patronTurno = /^[A-Z]{1}[0-9]{1,3}$/;
-            if (patronTurno.test(turnoInput)) {
-                indicator.className = "turn-indicator valid";
-                indicator.style.backgroundColor = "var(--accent-green)";
-                text.innerText = "Formato de turno válido";
-            } else {
-                indicator.className = "turn-indicator invalid";
-                indicator.style.backgroundColor = "var(--claro-red)";
-                text.innerText = "Inválido (Ej: E34)";
+        function handleKeyDown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                guardarRegistroInline();
             }
         }
 
-        // 2. LECTURA Y CÁLCULO DE DASHBOARD
-        function cargarDatosDashboard() {
-            const currentMonthStr = new Date().toISOString().substring(0, 7); // "2026-07"
-            const todayStr = new Date().toISOString().substring(0, 10); // "2026-07-13"
-            document.getElementById("mesActualLabel").innerText = "Período: " + currentMonthStr;
+        // CARGA DE DATOS
+        function cargarDatos() {
+            const currentMonth = new Date().toISOString().substring(0, 7);
+            document.getElementById("mesLabel").innerText = currentMonth;
 
-            fetch(GOOGLE_API_URL, { method: "GET", mode: "cors" })
+            fetch(API_URL, { method: "GET", mode: "cors" })
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    const gestiones = data.gestiones || [];
-                    const metas = data.metas || [];
-
-                    // Buscar meta del mes actual o usar default
-                    const metaMes = metas.find(m => String(m.Mes).trim() === currentMonthStr) || {
-                        Meta_Ventas_Hogar: 20,
-                        Meta_Ventas_Pospago: 30,
-                        Meta_Ventas_Equipo: 10,
-                        Meta_Migraciones: 25,
-                        Meta_Otros: 40
-                    };
-
-                    // Filtrar gestiones del mes
-                    const gestionesMes = gestiones.filter(g => g.Fecha && g.Fecha.startsWith(currentMonthStr));
-                    const gestionesHoy = gestiones.filter(g => g.Fecha === todayStr);
-
-                    // Conteo de trámites
-                    let cantHogar = 0, cantPospago = 0, cantEquipo = 0, cantMigracion = 0, cantOtros = 0;
-
-                    gestionesMes.forEach(g => {
-                        if (g.Accion === "Venta") {
-                            if (g.Subtipo === "Hogar") cantHogar++;
-                            if (g.Subtipo === "Pospago") cantPospago++;
-                            if (g.Subtipo === "Equipo") cantEquipo++;
-                        } else if (g.Accion === "Migración") {
-                            cantMigracion++;
-                        } else {
-                            cantOtros++;
-                        }
-                    });
-
-                    // Renderizar Barras de Progreso
-                    const htmlKPIs = `
-                        ${renderBar("Ventas Hogar (Fibra / HFC)", cantHogar, metaMes.Meta_Ventas_Hogar, "fill-hogar")}
-                        ${renderBar("Ventas Móvil Pospago", cantPospago, metaMes.Meta_Ventas_Pospago, "fill-pospago")}
-                        ${renderBar("Ventas Tecnología / Equipos", cantEquipo, metaMes.Meta_Ventas_Equipo, "fill-equipo")}
-                        ${renderBar("Migraciones Tecnológicas", cantMigracion, metaMes.Meta_Migraciones, "fill-migracion")}
-                        ${renderBar("Otros Trámites Operativos", cantOtros, metaMes.Meta_Otros, "fill-otros")}
-                    `;
-                    document.getElementById("kpiContainer").innerHTML = htmlKPIs;
-
-                    // Renderizar Resumen del Día
-                    document.getElementById("resumenHoyContainer").innerHTML = `
-                        <p style="margin-bottom:6px;">• Turnos Atendidos Hoy: <b>${gestionesHoy.length}</b></p>
-                        <p style="margin-bottom:6px;">• Ventas Hoy: <b>${gestionesHoy.filter(g => g.Accion === 'Venta').length}</b></p>
-                        <p>• Migraciones Hoy: <b>${gestionesHoy.filter(g => g.Accion === 'Migración').length}</b></p>
-                    `;
+                    renderTabla(data.gestiones || []);
+                    renderKPIs(data.gestiones || [], data.metas || [], currentMonth);
                 }
             })
-            .catch(err => {
-                console.error("Error cargando dashboard:", err);
-                document.getElementById("kpiContainer").innerHTML = "<p style='color:var(--claro-red); font-size:9.5pt;'>Error al sincronizar dashboard. Revisa tu conexión.</p>";
+            .catch(err => console.error("Error cargando Digiver:", err));
+        }
+
+        function renderTabla(gestiones) {
+            const body = document.getElementById("tableBody");
+            document.getElementById("totalGestionesLabel").innerText = `${gestiones.length} registros`;
+
+            if (gestiones.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No hay gestiones registradas.</td></tr>';
+                return;
+            }
+
+            // Ordenar por más reciente
+            const reversed = [...gestiones].reverse();
+            let html = "";
+            reversed.forEach(g => {
+                html += `
+                    <tr>
+                        <td><b>${g.Nombre || '—'}</b></td>
+                        <td>${g.Cedula || '—'}</td>
+                        <td><span style="font-family: monospace; font-weight: bold; color: var(--accent-primary);">${g.Turno}</span></td>
+                        <td>${g.Accion}</td>
+                        <td>${g.Subtipo ? `<span style="color: var(--accent-green);">${g.Subtipo}</span>` : '—'}</td>
+                        <td style="color: var(--text-muted); font-size: 8.5pt;">${g.Detalles || '—'}</td>
+                        <td><span style="color: var(--text-muted); font-size: 8pt;">${g.Hora || ''}</span></td>
+                    </tr>
+                `;
             });
+            body.innerHTML = html;
         }
 
-        function renderBar(titulo, actual, meta, claseFill) {
-            const pct = meta > 0 ? Math.min(100, Math.round((actual / meta) * 100)) : 0;
-            return `
-                <div class="kpi-group">
-                    <div class="kpi-header">
-                        <span>${titulo}</span>
-                        <span>${actual} / ${meta} (${pct}%)</span>
+        function renderKPIs(gestiones, metas, currentMonth) {
+            const kpiList = document.getElementById("kpiList");
+            const gestionesMes = gestiones.filter(g => g.Fecha && g.Fecha.startsWith(currentMonth));
+            
+            // Conteo actual
+            const conteo = {
+                Hogar: gestionesMes.filter(g => g.Subtipo === "Hogar").length,
+                Pospago: gestionesMes.filter(g => g.Subtipo === "Pospago").length,
+                Equipo: gestionesMes.filter(g => g.Subtipo === "Equipo").length,
+                Migración: gestionesMes.filter(g => g.Accion === "Migración").length,
+                Otros: gestionesMes.filter(g => g.Accion !== "Venta" && g.Accion !== "Migración").length
+            };
+
+            // Filtrar metas del mes actual
+            const metasMes = metas.filter(m => m.mes === currentMonth);
+
+            let html = "";
+            const categorias = ["Hogar", "Pospago", "Equipo", "Migración", "Otros"];
+
+            categorias.forEach(cat => {
+                const metaObj = metasMes.find(m => m.indicador === cat);
+                const target = metaObj ? metaObj.cantidad : 0;
+                const actual = conteo[cat] || 0;
+                const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
+
+                html += `
+                    <div class="kpi-item">
+                        <div class="kpi-meta-header">
+                            <span>${cat}</span>
+                            <span><b>${actual}</b> / ${target} (${pct}%)</span>
+                        </div>
+                        <div class="kpi-bar-bg">
+                            <div class="kpi-bar-fill" style="width: ${pct}%;"></div>
+                        </div>
                     </div>
-                    <div class="progress-track">
-                        <div class="progress-fill ${claseFill}" style="width: ${pct}%;"></div>
-                    </div>
-                </div>
-            `;
+                `;
+            });
+
+            kpiList.innerHTML = html || '<p style="color: var(--text-muted); font-size: 9pt;">Sin metas configuradas.</p>';
         }
 
-        // 3. ENVÍO DE DATOS
-        function enviarGestionASheets(e) {
-            e.preventDefault();
-            const btnGuardar = document.getElementById("btnGuardar");
-            btnGuardar.disabled = true;
-            btnGuardar.innerText = "Sincronizando...";
+        // GUARDADO INLINE
+        function guardarRegistroInline() {
+            const nombre = encodeURIComponent(document.getElementById("inNombre").value.trim());
+            const cedula = encodeURIComponent(document.getElementById("inCedula").value.trim());
+            const turno = encodeURIComponent(document.getElementById("inTurno").value.trim().toUpperCase());
+            const accion = encodeURIComponent(document.getElementById("inAccion").value);
+            const subtipo = encodeURIComponent(document.getElementById("inSubtipo").value);
+            const detalles = encodeURIComponent(document.getElementById("inDetalles").value.trim());
 
-            const nombre = encodeURIComponent(document.getElementById("inputNombre").value.trim());
-            const cedula = encodeURIComponent(document.getElementById("inputCedula").value.trim());
-            const turno = encodeURIComponent(document.getElementById("inputTurno").value.trim().toUpperCase());
-            const turnoCorrecto = encodeURIComponent(document.getElementById("selectTurnoCorrecto").value);
-            const accion = encodeURIComponent(document.getElementById("selectAccion").value);
-            const subtipo = encodeURIComponent(document.getElementById("selectSubtipo").value);
-            const detalles = encodeURIComponent(document.getElementById("inputDetalles").value.trim());
+            if (!turno) {
+                alert("Por favor ingresa un turno.");
+                return;
+            }
 
-            const urlConParametros = `${GOOGLE_API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=${turnoCorrecto}&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
+            const url = `${API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=Sí&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
 
-            fetch(urlConParametros, { method: "GET", mode: "no-cors", cache: "no-cache" })
+            fetch(url, { method: "GET", mode: "no-cors" })
             .then(() => {
-                showToast("¡Gestión registrada exitosamente!");
-                closeFormModal();
-                setTimeout(cargarDatosDashboard, 1000); // Recarga métricas automáticamente
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Error de red al registrar gestión.");
-            })
-            .finally(() => {
-                btnGuardar.disabled = false;
-                btnGuardar.innerText = "Guardar Gestión (Enter)";
+                showToast();
+                // Limpiar campos
+                document.getElementById("inNombre").value = "";
+                document.getElementById("inCedula").value = "";
+                document.getElementById("inTurno").value = "";
+                document.getElementById("inDetalles").value = "";
+                toggleInlineEditor(false);
+                setTimeout(cargarDatos, 1000);
             });
         }
 
-        function showToast(mensaje) {
-            const toast = document.getElementById("toastMessage");
-            toast.innerText = mensaje;
-            toast.style.display = "block";
-            setTimeout(() => { toast.style.display = "none"; }, 3500);
+        function showToast() {
+            const t = document.getElementById("toast");
+            t.style.display = "block";
+            setTimeout(() => t.style.display = "none", 3000);
         }
 
-        // Cargar Dashboard al iniciar
-        window.onload = cargarDatosDashboard;
+        window.onload = cargarDatos;
     </script>
 </body>
 </html>
