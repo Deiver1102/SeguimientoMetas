@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digiver — Operations Control</title>
+    <title>Digiver — Operational Workspace</title>
     <style>
         :root {
-            /* PALETA DE COLORES */
             --bg-body: #f8f9fa;
             --surface: #ffffff;
             --surface-hover: #f3f4f6;
-            
             --text-main: #111827;
             --text-muted: #6b7280;
-            
             --brand-red: #da291c;
             --brand-red-hover: #b31d14;
-            
             --border-color: #e5e7eb;
             --border-strong: #d1d5db;
             
-            /* ACENTOS DE ACCIÓN */
             --action-green: #10b981;
             --action-green-bg: #ecfdf5;
             --action-yellow: #f59e0b;
@@ -37,18 +32,17 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
-            font-size: 10.5pt;
+            font-size: 10pt;
             padding: 20px;
         }
 
-        /* HEADER ELEGANTE CON IDENTIDAD DIGIVER */
         .workspace-header {
             display: flex;
             justify-content: space-between;
@@ -62,12 +56,7 @@
             border-left: 6px solid var(--brand-red);
         }
 
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .brand-logo { display: flex; align-items: center; gap: 12px; }
         .brand-logo .logo-badge {
             background: var(--brand-red);
             color: white;
@@ -75,81 +64,81 @@
             font-size: 11pt;
             padding: 4px 10px;
             border-radius: var(--radius-sm);
-            letter-spacing: 0.5px;
         }
+        .brand-logo h1 { font-size: 15pt; font-weight: 800; color: var(--text-main); }
 
-        .brand-logo h1 {
-            font-size: 15pt;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: var(--text-main);
-        }
-
-        .brand-logo p {
-            font-size: 8.5pt;
-            color: var(--text-muted);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* BOTONES DE ALTO RENDIMIENTO */
         button {
             background: var(--surface);
             color: var(--text-main);
             border: 1px solid var(--border-strong);
             padding: 8px 14px;
             border-radius: var(--radius-sm);
-            font-size: 9.5pt;
+            font-size: 9pt;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: background 0.1s ease, border-color 0.1s ease;
         }
 
-        button:hover {
-            background: var(--surface-hover);
+        button.btn-primary { background: var(--brand-red); border-color: var(--brand-red); color: white; }
+        button.btn-primary:hover { background: var(--brand-red-hover); }
+
+        .badge-shortcut { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 8pt; }
+        button.btn-primary .badge-shortcut { background: rgba(255,255,255,0.25); color: white; }
+
+        /* BARRA ENTRADA INTELIGENTE (SMART INLINE BAR) */
+        .smart-editor-card {
+            background: var(--surface);
+            border: 2px solid var(--brand-red);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            display: none;
+            animation: fadeIn 0.15s ease-out;
         }
 
-        button.btn-primary {
-            background: var(--brand-red);
-            border-color: var(--brand-red);
-            color: white;
+        .smart-editor-card.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        button.btn-primary:hover {
-            background: var(--brand-red-hover);
-            border-color: var(--brand-red-hover);
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        button.btn-action-cyan {
-            background: var(--action-cyan-bg);
-            border-color: var(--action-cyan);
-            color: var(--action-cyan);
-        }
-
-        button.btn-action-cyan:hover {
-            background: #e0f2fe;
-        }
-
-        .badge-shortcut {
-            background: rgba(0,0,0,0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+        .field-box label {
+            display: block;
             font-size: 8pt;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
         }
 
-        button.btn-primary .badge-shortcut {
-            background: rgba(255,255,255,0.25);
-            color: white;
+        .field-box input, .field-box select {
+            width: 100%;
+            background: var(--bg-body);
+            border: 1px solid var(--border-strong);
+            color: var(--text-main);
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 9pt;
+            outline: none;
         }
 
-        /* ESTRUCTURA PRINCIPAL DE PANELES */
+        .field-box input:focus, .field-box select:focus {
+            border-color: var(--brand-red);
+            background: var(--surface);
+        }
+
+        /* WORKSPACE LAYOUT */
         .workspace-layout {
             display: grid;
             grid-template-columns: 1fr 340px;
@@ -163,282 +152,314 @@
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             padding: 20px;
+            margin-bottom: 20px;
         }
 
         .panel-header {
             font-weight: 800;
             font-size: 11pt;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--bg-body);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
-        /* TABLA DE EDICIÓN EN LÍNEA ULTRALIGERA */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .digiver-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
+        /* TABLAS DE DATOS */
+        .table-container { width: 100%; overflow-x: auto; }
+        .digiver-table { width: 100%; border-collapse: collapse; text-align: left; }
         .digiver-table th {
-            padding: 10px 12px;
+            padding: 9px 10px;
             color: var(--text-muted);
-            font-size: 8.5pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: var(--bg-body);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .digiver-table td {
-            padding: 11px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 9.5pt;
-        }
-
-        .digiver-table tr:hover td {
-            background: var(--surface-hover);
-        }
-
-        /* FILA DINÁMICA DE ENTRADA (INLINE EDITOR) */
-        .inline-editor-row {
-            background: #fef2f2 !important;
-            display: none;
-            border-left: 4px solid var(--brand-red);
-        }
-
-        .inline-editor-row.active {
-            display: table-row;
-        }
-
-        .inline-editor-row input, .inline-editor-row select {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border-strong);
-            color: var(--text-main);
-            padding: 7px 10px;
-            border-radius: var(--radius-sm);
-            font-size: 9pt;
-            outline: none;
-        }
-
-        .inline-editor-row input:focus, .inline-editor-row select:focus {
-            border-color: var(--brand-red);
-            box-shadow: 0 0 0 2px rgba(218, 41, 28, 0.15);
-        }
-
-        /* BADGES Y ETIQUETAS DE ACCIÓN */
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
             font-size: 8pt;
             font-weight: 700;
             text-transform: uppercase;
-        }
-
-        .badge-venta { background: var(--action-green-bg); color: var(--action-green); border: 1px solid #a7f3d0; }
-        .badge-migracion { background: var(--action-cyan-bg); color: var(--action-cyan); border: 1px solid #bae6fd; }
-        .badge-otros { background: var(--action-yellow-bg); color: #b45309; border: 1px solid #fde68a; }
-
-        /* SECCIÓN DE METAS Y PROGRESO */
-        .kpi-item {
-            margin-bottom: 16px;
-        }
-
-        .kpi-meta-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9pt;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .kpi-bar-bg {
-            height: 9px;
             background: var(--bg-body);
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
+        .digiver-table td { padding: 9px 10px; border-bottom: 1px solid var(--border-color); font-size: 9pt; }
 
-        .kpi-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--brand-red);
-            border-radius: 6px;
-            transition: width 0.4s ease;
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-size: 7.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
         }
+        .badge-ok { background: var(--action-green-bg); color: var(--action-green); border: 1px solid #a7f3d0; }
+        .badge-digitado { background: var(--action-cyan-bg); color: var(--action-cyan); border: 1px solid #bae6fd; }
+        .badge-pendiente { background: var(--action-yellow-bg); color: #b45309; border: 1px solid #fde68a; }
 
-        .kpi-bar-fill.fill-green { background: var(--action-green); }
-        .kpi-bar-fill.fill-cyan { background: var(--action-cyan); }
-        .kpi-bar-fill.fill-yellow { background: var(--action-yellow); }
+        /* METAS Y BARRAS */
+        .kpi-item { margin-bottom: 14px; }
+        .kpi-meta-header { display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
+        .kpi-bar-bg { height: 8px; background: var(--bg-body); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .kpi-bar-fill { height: 100%; width: 0%; background: var(--brand-red); transition: width 0.4s ease; }
 
-        /* TOAST NOTIFICACIÓN LIGERO */
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--text-main);
-            color: white;
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
-            font-size: 9pt;
-            font-weight: 700;
-            display: none;
-            border-left: 4px solid var(--action-green);
-            z-index: 1000;
+            bottom: 20px; right: 20px;
+            background: var(--text-main); color: white;
+            padding: 10px 18px; border-radius: var(--radius-md);
+            font-size: 9pt; font-weight: 700; display: none;
+            border-left: 4px solid var(--action-green); z-index: 1000;
         }
     </style>
 </head>
 <body>
 
+    <!-- HEADER SUPERIOR -->
     <div class="workspace-header">
         <div class="brand-logo">
             <span class="logo-badge">DV</span>
             <div>
                 <h1>Digiver</h1>
-                <p>Gestión de Turnos & Objetivos Operativos</p>
+                <p>Módulo de Operaciones, Turnos y Seguimiento</p>
             </div>
         </div>
-        <div class="header-actions">
-            <button class="btn-primary" onclick="toggleInlineEditor(true)">
+        <div>
+            <button class="btn-primary" onclick="toggleSmartEditor(true)">
                 + Nueva Gestión <span class="badge-shortcut">Shift + N</span>
             </button>
-            <button class="btn-action-cyan" onclick="cargarDatos()">
-                🔄 Sincronizar
-            </button>
+            <button onclick="cargarDatos()" style="margin-left: 6px;">🔄 Sincronizar</button>
         </div>
     </div>
 
+    <!-- PANEL DE ENTRADA INTELIGENTE FLUIDO -->
+    <div class="smart-editor-card" id="smartEditorCard">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <span style="font-weight: 800; font-size: 10pt; color: var(--brand-red);">COMPLETAR NUEVA GESTIÓN DE TURNO</span>
+            <span class="badge-shortcut">Esc para cancelar</span>
+        </div>
+
+        <div class="grid-form">
+            <div class="field-box">
+                <label>Nombre Cliente</label>
+                <input type="text" id="inNombre" placeholder="Nombre...">
+            </div>
+            <div class="field-box">
+                <label>Cédula / NIT</label>
+                <input type="text" id="inCedula" placeholder="Cédula...">
+            </div>
+            <div class="field-box">
+                <label>Turno</label>
+                <input type="text" id="inTurno" placeholder="Ej: E34" style="text-transform: uppercase; font-weight: bold;">
+            </div>
+            <div class="field-box">
+                <label>Cuenta / Contrato</label>
+                <input type="text" id="inCuenta" placeholder="Nº Cuenta...">
+            </div>
+            <div class="field-box">
+                <label>Valor ($)</label>
+                <input type="number" id="inValor" placeholder="Ej: 75000">
+            </div>
+            <div class="field-box">
+                <label>Producto</label>
+                <select id="inProducto" onchange="actualizarTiposYEstados()">
+                    <option value="Internet">Internet (Hogar)</option>
+                    <option value="Postpago">Móvil Postpago</option>
+                    <option value="Equipo">Venta de Equipo</option>
+                </select>
+            </div>
+            <div class="field-box">
+                <label>Tipo de Trámite</label>
+                <select id="inTipo" onchange="evaluarReglasEstado()"></select>
+            </div>
+            <div class="field-box">
+                <label>NIP / OT / Ref</label>
+                <input type="text" id="inOrden" placeholder="NIP u OT...">
+            </div>
+            <div class="field-box" id="boxMarca" style="display: none;">
+                <label>Marca Equipo</label>
+                <select id="inMarca">
+                    <option value="Samsung">Samsung</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Oppo">Oppo</option>
+                    <option value="Motorola">Motorola</option>
+                    <option value="Xiaomi">Xiaomi</option>
+                    <option value="ZTE">ZTE</option>
+                    <option value="Otra">Otra Marca</option>
+                </select>
+            </div>
+            <div class="field-box">
+                <label>Estado</label>
+                <select id="inEstado">
+                    <option value="OK">OK</option>
+                    <option value="Digitado">Digitado</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="field-box" id="boxFechaSeguimiento" style="display: none;">
+                <label id="lblFechaSeguimiento">Fecha Seguimiento</label>
+                <input type="date" id="inFechaSeguimiento">
+            </div>
+        </div>
+
+        <div class="field-box" style="margin-bottom: 12px;">
+            <label>Detalle / Observaciones del Caso</label>
+            <input type="text" id="inDetalle" placeholder="Escribe detalles o notas adicionales del turno..." onkeydown="if(event.key==='Enter') guardarRegistroSmart()">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button onclick="toggleSmartEditor(false)">Cancelar</button>
+            <button class="btn-primary" onclick="guardarRegistroSmart()">Guardar Gestión (Enter)</button>
+        </div>
+    </div>
+
+    <!-- WORKSPACE PRINCIPAL -->
     <div class="workspace-layout">
         
-        <div class="panel">
-            <div class="panel-header">
-                <span>Historial de Gestiones</span>
-                <span id="totalGestionesLabel" style="color: var(--text-muted); font-weight: normal; font-size: 8.5pt;">0 registros</span>
+        <div class="main-column">
+            <!-- PANEL SEGUIMIENTO / PENDIENTES DESTACADOS -->
+            <div class="panel" style="border-left: 4px solid var(--action-yellow);">
+                <div class="panel-header">
+                    <span style="color: #b45309;">⚠️ Pendientes & Instalaciones Programadas</span>
+                    <span id="cantPendientesBadge" style="font-size: 8.5pt; color: var(--text-muted);">0 casos</span>
+                </div>
+                <div class="table-container">
+                    <table class="digiver-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha Programada</th>
+                                <th>Cliente / Cédula</th>
+                                <th>Turno</th>
+                                <th>Producto / Tipo</th>
+                                <th>NIP / OT</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyPendientes">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Cargando seguimiento...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="table-container">
-                <table class="digiver-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 150px;">Cliente</th>
-                            <th style="width: 110px;">Cédula</th>
-                            <th style="width: 80px;">Turno</th>
-                            <th style="width: 120px;">Trámite</th>
-                            <th style="width: 110px;">Subtipo</th>
-                            <th>Detalles / Observación</th>
-                            <th style="width: 70px;">Hora</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="inline-editor-row" id="inlineRow">
-                            <td><input type="text" id="inNombre" placeholder="Nombre cliente..."></td>
-                            <td><input type="text" id="inCedula" placeholder="Cédula / NIT..."></td>
-                            <td><input type="text" id="inTurno" placeholder="Ej: E34" style="text-transform: uppercase; font-weight: bold;"></td>
-                            <td>
-                                <select id="inAccion" onchange="handleAccionChange()">
-                                    <option value="Venta">Venta</option>
-                                    <option value="Migración">Migración</option>
-                                    <option value="Titularidad">Titularidad</option>
-                                    <option value="Traslado">Traslado</option>
-                                    <option value="Suspensión">Suspensión</option>
-                                    <option value="Cancelación">Cancelación</option>
-                                </select>
-                            </td>
-                            <td>
-                                <select id="inSubtipo">
-                                    <option value="Hogar">Hogar</option>
-                                    <option value="Pospago">Pospago</option>
-                                    <option value="Equipo">Equipo</option>
-                                </select>
-                            </td>
-                            <td><input type="text" id="inDetalles" placeholder="Notas del caso..." onkeydown="handleKeyDown(event)"></td>
-                            <td>
-                                <button class="btn-primary" style="padding: 4px 8px; font-size: 8pt;" onclick="guardarRegistroInline()">Guardar</button>
-                            </td>
-                        </tr>
-
+            <!-- HISTORIAL GENERAL -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span>Historial de Gestiones</span>
+                    <span id="totalGestionesLabel" style="color: var(--text-muted); font-size: 8.5pt;">0 registros</span>
+                </div>
+                <div class="table-container">
+                    <table class="digiver-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Turno</th>
+                                <th>Producto</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                                <th>NIP/OT</th>
+                                <th>Estado</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Cargando espacio de trabajo...</td></tr>
+                            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Sincronizando...</td></tr>
                         </tbody>
-                    </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
         </div>
 
+        <!-- PANEL LATERAL DE METAS -->
         <div class="panel">
             <div class="panel-header">
-                <span>Cumplimiento del Mes</span>
+                <span>Metas del Mes</span>
                 <span id="mesLabel" style="color: var(--brand-red); font-size: 8.5pt; font-weight: 800;">-</span>
             </div>
-
             <div id="kpiList">
-                <p style="color: var(--text-muted); font-size: 9pt;">Cargando objetivos...</p>
+                <p style="color: var(--text-muted); font-size: 9pt;">Cargando metas...</p>
             </div>
         </div>
 
     </div>
 
-    <div class="toast" id="toast">Registro guardado en Digiver Cloud</div>
+    <div class="toast" id="toast">Registro guardado con éxito</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
-        // GESTIÓN DE ATAJOS DE TECLADO
+        // TECLADO: SHIFT + N Y ESCAPE
         window.addEventListener('keydown', (e) => {
             if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
                 if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                     e.preventDefault();
-                    toggleInlineEditor(true);
+                    toggleSmartEditor(true);
                 }
             }
             if (e.key === 'Escape') {
-                toggleInlineEditor(false);
+                toggleSmartEditor(false);
             }
         });
 
-        function toggleInlineEditor(forceState) {
-            const row = document.getElementById("inlineRow");
-            const isVisible = row.classList.contains("active");
-            
-            if (forceState === false || (forceState === undefined && isVisible)) {
-                row.classList.remove("active");
-            } else {
-                row.classList.add("active");
+        function toggleSmartEditor(state) {
+            const card = document.getElementById("smartEditorCard");
+            if (state === true) {
+                card.classList.add("active");
+                actualizarTiposYEstados();
                 setTimeout(() => document.getElementById("inNombre").focus(), 50);
-            }
-        }
-
-        function handleAccionChange() {
-            const accion = document.getElementById("inAccion").value;
-            const selectSubtipo = document.getElementById("inSubtipo");
-            if (accion === "Venta") {
-                selectSubtipo.disabled = false;
             } else {
-                selectSubtipo.disabled = true;
-                selectSubtipo.value = "";
+                card.classList.remove("active");
             }
         }
 
-        function handleKeyDown(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                guardarRegistroInline();
+        // LÓGICA INTELLIGENT DE CAMPOS Y ESTADOS CONDICIONALES
+        function actualizarTiposYEstados() {
+            const producto = document.getElementById("inProducto").value;
+            const selectTipo = document.getElementById("inTipo");
+            const boxMarca = document.getElementById("boxMarca");
+
+            selectTipo.innerHTML = "";
+            boxMarca.style.display = "none";
+
+            if (producto === "Internet") {
+                const opciones = ["Hogar", "Sencillo", "Traslado", "Pqr", "Cancelación"];
+                opciones.forEach(o => selectTipo.add(new Option(o, o)));
+            } else if (producto === "Postpago") {
+                const opciones = ["Portabilidad", "Upgrade", "Linea Nueva", "Pqr", "Cancelación"];
+                opciones.forEach(o => selectTipo.add(new Option(o, o)));
+            } else if (producto === "Equipo") {
+                const opciones = ["Reposición", "HL", "Salesforce"];
+                opciones.forEach(o => selectTipo.add(new Option(o, o)));
+                boxMarca.style.display = "block";
+            }
+            evaluarReglasEstado();
+        }
+
+        function evaluarReglasEstado() {
+            const producto = document.getElementById("inProducto").value;
+            const tipo = document.getElementById("inTipo").value;
+            const selectEstado = document.getElementById("inEstado");
+            const boxFechaSeg = document.getElementById("boxFechaSeguimiento");
+            const lblFechaSeg = document.getElementById("lblFechaSeguimiento");
+
+            boxFechaSeg.style.display = "none";
+
+            if (producto === "Internet") {
+                selectEstado.value = "Digitado";
+                boxFechaSeg.style.display = "block";
+                lblFechaSeg.innerText = "Fecha Instalación";
+            } else if (producto === "Postpago") {
+                if (tipo === "Linea Nueva" || tipo === "Upgrade") {
+                    selectEstado.value = "OK";
+                } else if (tipo === "Portabilidad") {
+                    selectEstado.value = "Digitado";
+                    boxFechaSeg.style.display = "block";
+                    lblFechaSeg.innerText = "Fecha Portabilidad";
+                } else {
+                    selectEstado.value = "Pendiente";
+                }
+            } else if (producto === "Equipo") {
+                selectEstado.value = "OK";
             }
         }
 
-        // LECTURA ASÍNCRONA DE DATOS MEDIANTE JSONP
+        // CARGA DE DATOS ASÍNCRONA JSONP
         function cargarDatos() {
             const currentMonth = new Date().toISOString().substring(0, 7);
             document.getElementById("mesLabel").innerText = currentMonth;
@@ -449,49 +470,65 @@
             const script = document.createElement("script");
             script.id = "jsonpScript";
             script.src = `${API_URL}?callback=procesarDatosDigiver&_=${Date.now()}`;
-            script.onerror = function() {
-                console.error("Error al conectar con la API de Digiver");
-            };
             document.body.appendChild(script);
         }
 
         function procesarDatosDigiver(data) {
             if (data && data.status === "success") {
                 const currentMonth = new Date().toISOString().substring(0, 7);
-                renderTabla(data.gestiones || []);
+                renderTablas(data.gestiones || []);
                 renderKPIs(data.gestiones || [], data.metas || [], currentMonth);
             }
         }
 
-        function renderTabla(gestiones) {
-            const body = document.getElementById("tableBody");
-            document.getElementById("totalGestionesLabel").innerText = `${gestiones.length} registros cargados`;
-
-            if (gestiones.length === 0) {
-                body.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No hay gestiones registradas.</td></tr>';
-                return;
-            }
+        function renderTablas(gestiones) {
+            const bodyHistorial = document.getElementById("tableBody");
+            const bodyPendientes = document.getElementById("bodyPendientes");
+            document.getElementById("totalGestionesLabel").innerText = `${gestiones.length} registros`;
 
             const reversed = [...gestiones].reverse();
-            let html = "";
-            reversed.forEach(g => {
-                let badgeClass = "badge-otros";
-                if (g.Accion === "Venta") badgeClass = "badge-venta";
-                if (g.Accion === "Migración") badgeClass = "badge-migracion";
+            let htmlHistorial = "";
+            let htmlPendientes = "";
+            let cantPendientes = 0;
 
-                html += `
+            reversed.forEach(g => {
+                let badgeClass = "badge-ok";
+                if (g.Estado === "Digitado") badgeClass = "badge-digitado";
+                if (g.Estado === "Pendiente") badgeClass = "badge-pendiente";
+
+                // Fila Historial General
+                htmlHistorial += `
                     <tr>
                         <td><b>${g.Nombre || '—'}</b></td>
-                        <td>${g.Cedula || '—'}</td>
                         <td><span style="font-family: monospace; font-weight: bold; color: var(--brand-red);">${g.Turno}</span></td>
-                        <td><span class="badge ${badgeClass}">${g.Accion}</span></td>
-                        <td>${g.Subtipo ? `<b>${g.Subtipo}</b>` : '—'}</td>
-                        <td style="color: var(--text-muted); font-size: 8.5pt;">${g.Detalles || '—'}</td>
+                        <td>${g.Producto}</td>
+                        <td>${g.Tipo}</td>
+                        <td>${g.Valor ? '$' + Number(g.Valor).toLocaleString('es-CO') : '—'}</td>
+                        <td>${g.Orden || '—'}</td>
+                        <td><span class="badge ${badgeClass}">${g.Estado}</span></td>
                         <td><span style="color: var(--text-muted); font-size: 8pt;">${g.Hora || ''}</span></td>
                     </tr>
                 `;
+
+                // Fila Panel de Pendientes / Instalaciones
+                if (g.Estado === "Digitado" || g.Estado === "Pendiente") {
+                    cantPendientes++;
+                    htmlPendientes += `
+                        <tr>
+                            <td><b>${g.FechaSeguimiento || 'Sin fecha asignada'}</b></td>
+                            <td>${g.Nombre || 'Sin nombre'} (${g.Cedula || 'N/A'})</td>
+                            <td><span style="font-family: monospace; font-weight: bold;">${g.Turno}</span></td>
+                            <td>${g.Producto} - ${g.Tipo}</td>
+                            <td>${g.Orden || '—'}</td>
+                            <td><span class="badge ${badgeClass}">${g.Estado}</span></td>
+                        </tr>
+                    `;
+                }
             });
-            body.innerHTML = html;
+
+            bodyHistorial.innerHTML = htmlHistorial || '<tr><td colspan="8" style="text-align:center;">Sin registros.</td></tr>';
+            bodyPendientes.innerHTML = htmlPendientes || '<tr><td colspan="6" style="text-align:center; color: var(--action-green);">Al día: No tienes instalaciones o trámites pendientes.</td></tr>';
+            document.getElementById("cantPendientesBadge").innerText = `${cantPendientes} por gestionar`;
         }
 
         function renderKPIs(gestiones, metas, currentMonth) {
@@ -499,28 +536,21 @@
             const gestionesMes = gestiones.filter(g => g.Fecha && g.Fecha.startsWith(currentMonth));
             
             const conteo = {
-                Hogar: gestionesMes.filter(g => g.Subtipo === "Hogar").length,
-                Pospago: gestionesMes.filter(g => g.Subtipo === "Pospago").length,
-                Equipo: gestionesMes.filter(g => g.Subtipo === "Equipo").length,
-                Migración: gestionesMes.filter(g => g.Accion === "Migración").length,
-                Otros: gestionesMes.filter(g => g.Accion !== "Venta" && g.Accion !== "Migración").length
+                Hogar: gestionesMes.filter(g => g.Producto === "Internet").length,
+                Pospago: gestionesMes.filter(g => g.Producto === "Postpago").length,
+                Equipo: gestionesMes.filter(g => g.Producto === "Equipo").length,
+                Otros: gestionesMes.filter(g => g.Tipo === "Pqr" || g.Tipo === "Cancelación").length
             };
 
             const metasMes = metas.filter(m => m.mes === currentMonth);
-
             let html = "";
-            const categorias = ["Hogar", "Pospago", "Equipo", "Migración", "Otros"];
+            const categorias = ["Hogar", "Pospago", "Equipo", "Otros"];
 
             categorias.forEach(cat => {
                 const metaObj = metasMes.find(m => m.indicador === cat);
                 const target = metaObj ? metaObj.cantidad : 0;
                 const actual = conteo[cat] || 0;
                 const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
-
-                let fillClass = "";
-                if (cat === "Hogar" || cat === "Pospago") fillClass = "fill-green";
-                if (cat === "Migración") fillClass = "fill-cyan";
-                if (cat === "Otros") fillClass = "fill-yellow";
 
                 html += `
                     <div class="kpi-item">
@@ -529,39 +559,50 @@
                             <span><b>${actual}</b> / ${target} (${pct}%)</span>
                         </div>
                         <div class="kpi-bar-bg">
-                            <div class="kpi-bar-fill ${fillClass}" style="width: ${pct}%;"></div>
+                            <div class="kpi-bar-fill" style="width: ${pct}%;"></div>
                         </div>
                     </div>
                 `;
             });
 
-            kpiList.innerHTML = html || '<p style="color: var(--text-muted); font-size: 9pt;">Sin metas configuradas para este período.</p>';
+            kpiList.innerHTML = html || '<p style="color: var(--text-muted); font-size: 9pt;">Sin metas configuradas.</p>';
         }
 
-        // GUARDADO EN LÍNEA
-        function guardarRegistroInline() {
+        // GUARDADO DE REGISTRO
+        function guardarRegistroSmart() {
             const nombre = encodeURIComponent(document.getElementById("inNombre").value.trim());
             const cedula = encodeURIComponent(document.getElementById("inCedula").value.trim());
             const turno = encodeURIComponent(document.getElementById("inTurno").value.trim().toUpperCase());
-            const accion = encodeURIComponent(document.getElementById("inAccion").value);
-            const subtipo = encodeURIComponent(document.getElementById("inSubtipo").value);
-            const detalles = encodeURIComponent(document.getElementById("inputDetalles") ? document.getElementById("inputDetalles").value.trim() : document.getElementById("inDetalles").value.trim());
+            const cuenta = encodeURIComponent(document.getElementById("inCuenta").value.trim());
+            const valor = encodeURIComponent(document.getElementById("inValor").value.trim());
+            const producto = encodeURIComponent(document.getElementById("inProducto").value);
+            const tipo = encodeURIComponent(document.getElementById("inTipo").value);
+            const orden = encodeURIComponent(document.getElementById("inOrden").value.trim());
+            const marca = encodeURIComponent(document.getElementById("inMarca").value);
+            const estado = encodeURIComponent(document.getElementById("inEstado").value);
+            const fechaSeguimiento = encodeURIComponent(document.getElementById("inFechaSeguimiento").value);
+            const detalle = encodeURIComponent(document.getElementById("inDetalle").value.trim());
 
             if (!turno) {
-                alert("Ingresa el código del turno para continuar.");
+                alert("Por favor ingresa el código del turno.");
                 return;
             }
 
-            const url = `${API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&turnoCorrecto=Sí&accion=${accion}&subtipo=${subtipo}&detalles=${detalles}`;
+            const url = `${API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&cuenta=${cuenta}&valor=${valor}&producto=${producto}&tipo=${tipo}&orden=${orden}&marca=${marca}&estado=${estado}&fechaSeguimiento=${fechaSeguimiento}&detalle=${detalle}`;
 
             fetch(url, { method: "GET", mode: "no-cors" })
             .then(() => {
                 showToast();
+                // Limpiar Formulario
                 document.getElementById("inNombre").value = "";
                 document.getElementById("inCedula").value = "";
                 document.getElementById("inTurno").value = "";
-                document.getElementById("inDetalles").value = "";
-                toggleInlineEditor(false);
+                document.getElementById("inCuenta").value = "";
+                document.getElementById("inValor").value = "";
+                document.getElementById("inOrden").value = "";
+                document.getElementById("inFechaSeguimiento").value = "";
+                document.getElementById("inDetalle").value = "";
+                toggleSmartEditor(false);
                 setTimeout(cargarDatos, 1000);
             });
         }
