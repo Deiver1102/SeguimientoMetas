@@ -315,16 +315,17 @@
                     <table class="digiver-table">
                         <thead>
                             <tr>
-                                <th>Fecha Programada</th>
-                                <th>Cliente / Cédula</th>
-                                <th>Turno</th>
+                                <th style="width: 140px;">Fecha Programada</th>
+                                <th>Cliente</th>
+                                <th>Cédula</th>
                                 <th>Producto / Tipo</th>
+                                <th>Cuenta</th>
                                 <th>NIP / OT / RADIC</th>
-                                <th>Estado</th>
+                                <th style="width: 100px;">Estado</th>
                             </tr>
                         </thead>
                         <tbody id="bodyPendientes">
-                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Cargando seguimiento...</td></tr>
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Cargando seguimiento...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -346,7 +347,7 @@
                                 <th>Valor</th>
                                 <th>NIP / OT / RADIC</th>
                                 <th>Estado</th>
-                                <th>Fecha</th>
+                                <th>Fecha y Hora</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -374,12 +375,10 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
-        // FUNCIONES AUXILIARES DE FORMATEO DE FECHAS
         const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 
         function formatearFechaLarga(fechaStr) {
-            if (!fechaStr) return "Sin fecha asignada";
-            // Extrae YYYY-MM-DD
+            if (!fechaStr) return "Sin fecha";
             const partes = fechaStr.toString().substring(0, 10).split("-");
             if (partes.length < 3) return fechaStr;
             const dia = parseInt(partes[2], 10);
@@ -388,10 +387,10 @@
             return `${dia} de ${MESES_ES[mesIdx]}`;
         }
 
+        // Formatea el Timestamp completo
         function formatearFechaHora(fechaStr, horaStr) {
             if (!fechaStr) return "—";
             
-            // Formatear Fecha DD/MM/YYYY
             let fFormatted = fechaStr.toString().substring(0, 10);
             const partesF = fFormatted.split("-");
             if (partesF.length === 3) {
@@ -400,19 +399,8 @@
 
             if (!horaStr) return fFormatted;
 
-            // Formatear Hora 12h AM/PM
-            let hFormatted = horaStr.toString().trim();
-            const partesH = hFormatted.split(":");
-            if (partesH.length >= 2) {
-                let hh = parseInt(partesH[0], 10);
-                const mm = partesH[1].padStart(2, '0');
-                const ampm = hh >= 12 ? 'PM' : 'AM';
-                hh = hh % 12;
-                hh = hh ? hh : 12; // el '0' pasa a ser '12'
-                hFormatted = `${hh}:${mm} ${ampm}`;
-            }
-
-            return `${fFormatted} ${hFormatted}`;
+            // Procesar hora de forma limpia sin importar el formato inicial (asumiendo formato nativo AM/PM del script)
+            return `${fFormatted} ${horaStr}`;
         }
 
         window.addEventListener('keydown', (e) => {
@@ -541,16 +529,17 @@
                     </tr>
                 `;
 
-                // Pendientes / Seguimiento
+                // Pendientes / Seguimiento (Con el nuevo orden de columnas solicitado)
                 if (g.Estado === "Digitado" || g.Estado === "Pendiente") {
                     cantPendientes++;
                     const fechaPendienteFormateada = formatearFechaLarga(g.FechaSeguimiento);
                     htmlPendientes += `
                         <tr>
                             <td><b style="color: var(--brand-red);">${fechaPendienteFormateada}</b></td>
-                            <td>${g.Nombre || 'Sin nombre'} (${g.Cedula || 'N/A'})</td>
-                            <td><span style="font-family: monospace; font-weight: bold;">${g.Turno}</span></td>
+                            <td><b>${g.Nombre || '—'}</b></td>
+                            <td>${g.Cedula || '—'}</td>
                             <td>${g.Producto} - ${g.Tipo}</td>
+                            <td>${g.Cuenta || '—'}</td>
                             <td>${ordenValor}</td>
                             <td><span class="badge ${badgeClass}">${g.Estado}</span></td>
                         </tr>
@@ -559,7 +548,7 @@
             });
 
             bodyHistorial.innerHTML = htmlHistorial || '<tr><td colspan="8" style="text-align:center;">Sin registros.</td></tr>';
-            bodyPendientes.innerHTML = htmlPendientes || '<tr><td colspan="6" style="text-align:center; color: var(--action-green);">Al día: No tienes instalaciones o trámites pendientes.</td></tr>';
+            bodyPendientes.innerHTML = htmlPendientes || '<tr><td colspan="7" style="text-align:center; color: var(--action-green);">Al día: No tienes instalaciones o trámites pendientes.</td></tr>';
             document.getElementById("cantPendientesBadge").innerText = `${cantPendientes} por gestionar`;
         }
 
