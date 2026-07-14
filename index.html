@@ -189,10 +189,37 @@
         .badge-digitado { background: var(--action-cyan-bg); color: var(--action-cyan); border: 1px solid #bae6fd; }
         .badge-pendiente { background: var(--action-yellow-bg); color: #b45309; border: 1px solid #fde68a; }
 
-        .kpi-item { margin-bottom: 14px; }
+        /* BARRAS DE PROGRESO COMPUESTAS (OK + DIGITADO EN GRIS) */
+        .kpi-item { margin-bottom: 18px; }
         .kpi-meta-header { display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
-        .kpi-bar-bg { height: 8px; background: var(--bg-body); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
-        .kpi-bar-fill { height: 100%; width: 0%; background: var(--brand-red); transition: width 0.4s ease; }
+        .kpi-bar-bg {
+            height: 10px;
+            background: var(--bg-body);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: flex;
+        }
+        .kpi-bar-ok {
+            height: 100%;
+            background: var(--action-green);
+            transition: width 0.4s ease;
+        }
+        .kpi-bar-digitado {
+            height: 100%;
+            background: #9ca3af; /* Gris para representar lo Digitado/Proyección */
+            transition: width 0.4s ease;
+        }
+
+        .kpi-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 7.5pt;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .kpi-legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
         .toast {
             position: fixed;
@@ -360,7 +387,7 @@
 
         <div class="panel">
             <div class="panel-header">
-                <span>Metas del Mes</span>
+                <span>Objetivos del Mes</span>
                 <span id="mesLabel" style="color: var(--brand-red); font-size: 8.5pt; font-weight: 800;">-</span>
             </div>
             <div id="kpiList">
@@ -387,19 +414,14 @@
             return `${dia} de ${MESES_ES[mesIdx]}`;
         }
 
-        // Formatea el Timestamp completo
         function formatearFechaHora(fechaStr, horaStr) {
             if (!fechaStr) return "—";
-            
             let fFormatted = fechaStr.toString().substring(0, 10);
             const partesF = fFormatted.split("-");
             if (partesF.length === 3) {
                 fFormatted = `${partesF[2]}/${partesF[1]}/${partesF[0]}`;
             }
-
             if (!horaStr) return fFormatted;
-
-            // Procesar hora de forma limpia sin importar el formato inicial (asumiendo formato nativo AM/PM del script)
             return `${fFormatted} ${horaStr}`;
         }
 
@@ -477,8 +499,12 @@
         }
 
         function cargarDatos() {
-            const currentMonth = new Date().toISOString().substring(0, 7);
-            document.getElementById("mesLabel").innerText = currentMonth;
+            const now = new Date();
+            const monthPadded = String(now.getMonth() + 1).padStart(2, '0');
+            const currentMonthSlash = `${monthPadded}/${now.getFullYear()}`; // "07/2026"
+            const currentMonthISO = `${now.getFullYear()}-${monthPadded}`; // "2026-07"
+
+            document.getElementById("mesLabel").innerText = currentMonthSlash;
 
             const oldScript = document.getElementById("jsonpScript");
             if (oldScript) oldScript.remove();
@@ -491,9 +517,13 @@
 
         function procesarDatosDigiver(data) {
             if (data && data.status === "success") {
-                const currentMonth = new Date().toISOString().substring(0, 7);
+                const now = new Date();
+                const monthPadded = String(now.getMonth() + 1).padStart(2, '0');
+                const currentMonthSlash = `${monthPadded}/${now.getFullYear()}`;
+                const currentMonthISO = `${now.getFullYear()}-${monthPadded}`;
+
                 renderTablas(data.gestiones || []);
-                renderKPIs(data.gestiones || [], data.metas || [], currentMonth);
+                renderKPIs(data.gestiones || [], data.metas || [], currentMonthISO, currentMonthSlash);
             }
         }
 
@@ -529,7 +559,7 @@
                     </tr>
                 `;
 
-                // Pendientes / Seguimiento (Con el nuevo orden de columnas solicitado)
+                // Pendientes / Seguimiento
                 if (g.Estado === "Digitado" || g.Estado === "Pendiente") {
                     cantPendientes++;
                     const fechaPendienteFormateada = formatearFechaLarga(g.FechaSeguimiento);
@@ -552,41 +582,83 @@
             document.getElementById("cantPendientesBadge").innerText = `${cantPendientes} por gestionar`;
         }
 
-        function renderKPIs(gestiones, metas, currentMonth) {
+        // CÁLCULO DE METAS CON FILAS EXACTAS DE EXCEL (C7, C8, C13, C23) + BARRAS OK VS DIGITADO
+        function renderKPIs(gestiones, metas, currentMonthISO, currentMonthSlash) {
             const kpiList = document.getElementById("kpiList");
-            const gestionesMes = gestiones.filter(g => g.Fecha && g.Fecha.startsWith(currentMonth));
-            
-            const conteo = {
-                Hogar: gestionesMes.filter(g => g.Producto === "Internet").length,
-                Pospago: gestionesMes.filter(g => g.Producto === "Postpago").length,
-                Equipo: gestionesMes.filter(g => g.Producto === "Equipo").length,
-                Otros: gestionesMes.filter(g => g.Tipo === "Pqr" || g.Tipo === "Cancelación").length
-            };
+            const gestionesMes = gestiones.filter(g => g.Fecha && (g.Fecha.startsWith(currentMonthISO) || g.Fecha.includes(currentMonthSlash)));
 
-            const metasMes = metas.filter(m => m.mes === currentMonth);
+            // Filtrar metas del mes actual (busca "07/2026" o similar)
+            const metasMes = metas.filter(m => m.mes === currentMonthSlash || m.mes === currentMonthISO);
+
+            // Extraer las cantidades numéricas directas de la pestaña 'Metas'
+            function obtenerMeta(nombreIndicador, defaultVal) {
+                const enco = metasMes.find(m => m.indicador.toLowerCase().includes(nombreIndicador.toLowerCase()));
+                if (!enco) return defaultVal;
+                // Si la celda trae formato moneda (ej $ 35.475.317), limpiamos el string
+                const num = Number(String(enco.cantidad).replace(/[^0-9]/g, ''));
+                return num > 0 ? num : defaultVal;
+            }
+
+            const metaAccesos = obtenerMeta("servicio fijo @", 9);        // C8
+            const metaPospago = obtenerMeta("total pospago", 37);         // C7
+            const metaEquipos = obtenerMeta("tecnología y terminales", 35475317); // C13
+            const metaMigraciones = obtenerMeta("migraciones brownfield", 8);  // C23
+
+            // Conteos separados por ESTADO (OK vs DIGITADO)
+            const okAccesos = gestionesMes.filter(g => g.Producto === "Internet" && g.Estado === "OK").length;
+            const digAccesos = gestionesMes.filter(g => g.Producto === "Internet" && g.Estado === "Digitado").length;
+
+            const okPospago = gestionesMes.filter(g => g.Producto === "Postpago" && g.Estado === "OK").length;
+            const digPospago = gestionesMes.filter(g => g.Producto === "Postpago" && g.Estado === "Digitado").length;
+
+            const okMigraciones = gestionesMes.filter(g => g.Tipo === "Migración" && g.Estado === "OK").length;
+            const digMigraciones = gestionesMes.filter(g => g.Tipo === "Migración" && g.Estado === "Digitado").length;
+
+            // Para Equipos es la SUMA DE VALORES ($)
+            const okEquiposVal = gestionesMes
+                .filter(g => g.Producto === "Equipo" && g.Estado === "OK")
+                .reduce((acc, g) => acc + (Number(g.Valor) || 0), 0);
+            const digEquiposVal = gestionesMes
+                .filter(g => g.Producto === "Equipo" && g.Estado === "Digitado")
+                .reduce((acc, g) => acc + (Number(g.Valor) || 0), 0);
+
+            // Estructura de renders
             let html = "";
-            const categorias = ["Hogar", "Pospago", "Equipo", "Otros"];
 
-            categorias.forEach(cat => {
-                const metaObj = metasMes.find(m => m.indicador === cat);
-                const target = metaObj ? metaObj.cantidad : 0;
-                const actual = conteo[cat] || 0;
-                const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
+            html += renderDoubleBar("Accesos (Servicio Fijo)", okAccesos, digAccesos, metaAccesos, false);
+            html += renderDoubleBar("Móvil Pospago Total", okPospago, digPospago, metaPospago, false);
+            html += renderDoubleBar("Migraciones", okMigraciones, digMigraciones, metaMigraciones, false);
+            html += renderDoubleBar("Equipos / Tecnología", okEquiposVal, digEquiposVal, metaEquipos, true);
 
-                html += `
-                    <div class="kpi-item">
-                        <div class="kpi-meta-header">
-                            <span>${cat}</span>
-                            <span><b>${actual}</b> / ${target} (${pct}%)</span>
-                        </div>
-                        <div class="kpi-bar-bg">
-                            <div class="kpi-bar-fill" style="width: ${pct}%;"></div>
-                        </div>
+            kpiList.innerHTML = html;
+        }
+
+        function renderDoubleBar(titulo, valOk, valDig, target, esMoneda) {
+            const totalProyeccion = valOk + valDig;
+            const pctOk = target > 0 ? Math.min(100, (valOk / target) * 100) : 0;
+            const pctDig = target > 0 ? Math.min(100 - pctOk, (valDig / target) * 100) : 0;
+            const pctTotal = Math.round(pctOk + pctDig);
+
+            const txtOk = esMoneda ? '$' + valOk.toLocaleString('es-CO') : valOk;
+            const txtDig = esMoneda ? '$' + valDig.toLocaleString('es-CO') : valDig;
+            const txtTarget = esMoneda ? '$' + target.toLocaleString('es-CO') : target;
+
+            return `
+                <div class="kpi-item">
+                    <div class="kpi-meta-header">
+                        <span>${titulo}</span>
+                        <span><b>${txtOk}</b> / ${txtTarget} (${Math.round(pctOk)}%)</span>
                     </div>
-                `;
-            });
-
-            kpiList.innerHTML = html || '<p style="color: var(--text-muted); font-size: 9pt;">Sin metas configuradas.</p>';
+                    <div class="kpi-bar-bg">
+                        <div class="kpi-bar-ok" style="width: ${pctOk}%;"></div>
+                        <div class="kpi-bar-digitado" style="width: ${pctDig}%;"></div>
+                    </div>
+                    <div class="kpi-legend">
+                        <span><span class="kpi-legend-dot" style="background:var(--action-green);"></span> OK: ${txtOk}</span>
+                        <span><span class="kpi-legend-dot" style="background:#9ca3af;"></span> Digitado: ${txtDig}</span>
+                    </div>
+                </div>
+            `;
         }
 
         function guardarRegistroSmart() {
