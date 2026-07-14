@@ -222,7 +222,6 @@
         </div>
     </div>
 
-    <!-- SMART COMMAND BAR -->
     <div class="smart-editor-card" id="smartEditorCard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
             <span style="font-weight: 800; font-size: 10pt; color: var(--brand-red);">COMPLETAR NUEVA GESTIÓN DE TURNO</span>
@@ -304,11 +303,9 @@
         </div>
     </div>
 
-    <!-- WORKSPACE PRINCIPAL -->
     <div class="workspace-layout">
         
         <div class="main-column">
-            <!-- PANEL SEGUIMIENTO / PENDIENTES DESTACADOS -->
             <div class="panel" style="border-left: 4px solid var(--action-yellow);">
                 <div class="panel-header">
                     <span style="color: #b45309;">⚠️ Pendientes & Instalaciones Programadas</span>
@@ -333,7 +330,6 @@
                 </div>
             </div>
 
-            <!-- HISTORIAL GENERAL -->
             <div class="panel">
                 <div class="panel-header">
                     <span>Historial de Gestiones</span>
@@ -350,7 +346,7 @@
                                 <th>Valor</th>
                                 <th>NIP / OT / RADIC</th>
                                 <th>Estado</th>
-                                <th>Hora</th>
+                                <th>Fecha</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody">
@@ -361,7 +357,6 @@
             </div>
         </div>
 
-        <!-- PANEL LATERAL DE METAS -->
         <div class="panel">
             <div class="panel-header">
                 <span>Metas del Mes</span>
@@ -378,6 +373,47 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
+
+        // FUNCIONES AUXILIARES DE FORMATEO DE FECHAS
+        const MESES_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+        function formatearFechaLarga(fechaStr) {
+            if (!fechaStr) return "Sin fecha asignada";
+            // Extrae YYYY-MM-DD
+            const partes = fechaStr.toString().substring(0, 10).split("-");
+            if (partes.length < 3) return fechaStr;
+            const dia = parseInt(partes[2], 10);
+            const mesIdx = parseInt(partes[1], 10) - 1;
+            if (isNaN(dia) || isNaN(mesIdx) || mesIdx < 0 || mesIdx > 11) return fechaStr;
+            return `${dia} de ${MESES_ES[mesIdx]}`;
+        }
+
+        function formatearFechaHora(fechaStr, horaStr) {
+            if (!fechaStr) return "—";
+            
+            // Formatear Fecha DD/MM/YYYY
+            let fFormatted = fechaStr.toString().substring(0, 10);
+            const partesF = fFormatted.split("-");
+            if (partesF.length === 3) {
+                fFormatted = `${partesF[2]}/${partesF[1]}/${partesF[0]}`;
+            }
+
+            if (!horaStr) return fFormatted;
+
+            // Formatear Hora 12h AM/PM
+            let hFormatted = horaStr.toString().trim();
+            const partesH = hFormatted.split(":");
+            if (partesH.length >= 2) {
+                let hh = parseInt(partesH[0], 10);
+                const mm = partesH[1].padStart(2, '0');
+                const ampm = hh >= 12 ? 'PM' : 'AM';
+                hh = hh % 12;
+                hh = hh ? hh : 12; // el '0' pasa a ser '12'
+                hFormatted = `${hh}:${mm} ${ampm}`;
+            }
+
+            return `${fFormatted} ${hFormatted}`;
+        }
 
         window.addEventListener('keydown', (e) => {
             if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
@@ -488,7 +524,8 @@
                 if (g.Estado === "Digitado") badgeClass = "badge-digitado";
                 if (g.Estado === "Pendiente") badgeClass = "badge-pendiente";
 
-                const ordenValor = g.Orden || g.NipOt || '—'; // Muestra la columna 'Orden'
+                const ordenValor = g.Orden || g.NipOt || '—';
+                const fechaHoraCompuesta = formatearFechaHora(g.Fecha, g.Hora);
 
                 // Historial
                 htmlHistorial += `
@@ -500,16 +537,17 @@
                         <td>${g.Valor ? '$' + Number(g.Valor).toLocaleString('es-CO') : '—'}</td>
                         <td>${ordenValor}</td>
                         <td><span class="badge ${badgeClass}">${g.Estado || 'OK'}</span></td>
-                        <td><span style="color: var(--text-muted); font-size: 8pt;">${g.Hora || ''}</span></td>
+                        <td><span style="color: var(--text-muted); font-size: 8.5pt; font-weight: 500;">${fechaHoraCompuesta}</span></td>
                     </tr>
                 `;
 
                 // Pendientes / Seguimiento
                 if (g.Estado === "Digitado" || g.Estado === "Pendiente") {
                     cantPendientes++;
+                    const fechaPendienteFormateada = formatearFechaLarga(g.FechaSeguimiento);
                     htmlPendientes += `
                         <tr>
-                            <td><b>${g.FechaSeguimiento || 'Sin fecha asignada'}</b></td>
+                            <td><b style="color: var(--brand-red);">${fechaPendienteFormateada}</b></td>
                             <td>${g.Nombre || 'Sin nombre'} (${g.Cedula || 'N/A'})</td>
                             <td><span style="font-family: monospace; font-weight: bold;">${g.Turno}</span></td>
                             <td>${g.Producto} - ${g.Tipo}</td>
