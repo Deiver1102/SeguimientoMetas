@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digiver — Operational Workspace</title>
+    <title>Digiver — Operations Control</title>
     <style>
         :root {
             --bg-body: #f8f9fa;
@@ -87,7 +87,6 @@
         .badge-shortcut { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 8pt; }
         button.btn-primary .badge-shortcut { background: rgba(255,255,255,0.25); color: white; }
 
-        /* BARRA ENTRADA INTELIGENTE (SMART INLINE BAR) */
         .smart-editor-card {
             background: var(--surface);
             border: 2px solid var(--brand-red);
@@ -138,7 +137,6 @@
             background: var(--surface);
         }
 
-        /* WORKSPACE LAYOUT */
         .workspace-layout {
             display: grid;
             grid-template-columns: 1fr 340px;
@@ -166,7 +164,6 @@
             padding-bottom: 8px;
         }
 
-        /* TABLAS DE DATOS */
         .table-container { width: 100%; overflow-x: auto; }
         .digiver-table { width: 100%; border-collapse: collapse; text-align: left; }
         .digiver-table th {
@@ -192,7 +189,6 @@
         .badge-digitado { background: var(--action-cyan-bg); color: var(--action-cyan); border: 1px solid #bae6fd; }
         .badge-pendiente { background: var(--action-yellow-bg); color: #b45309; border: 1px solid #fde68a; }
 
-        /* METAS Y BARRAS */
         .kpi-item { margin-bottom: 14px; }
         .kpi-meta-header { display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
         .kpi-bar-bg { height: 8px; background: var(--bg-body); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
@@ -210,7 +206,6 @@
 </head>
 <body>
 
-    <!-- HEADER SUPERIOR -->
     <div class="workspace-header">
         <div class="brand-logo">
             <span class="logo-badge">DV</span>
@@ -227,7 +222,7 @@
         </div>
     </div>
 
-    <!-- PANEL DE ENTRADA INTELIGENTE FLUIDO -->
+    <!-- SMART COMMAND BAR -->
     <div class="smart-editor-card" id="smartEditorCard">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
             <span style="font-weight: 800; font-size: 10pt; color: var(--brand-red);">COMPLETAR NUEVA GESTIÓN DE TURNO</span>
@@ -268,8 +263,8 @@
                 <select id="inTipo" onchange="evaluarReglasEstado()"></select>
             </div>
             <div class="field-box">
-                <label>NIP / OT / Ref</label>
-                <input type="text" id="inOrden" placeholder="NIP u OT...">
+                <label>NIP / OT / RADIC</label>
+                <input type="text" id="inOrden" placeholder="NIP / OT / RADIC...">
             </div>
             <div class="field-box" id="boxMarca" style="display: none;">
                 <label>Marca Equipo</label>
@@ -327,7 +322,7 @@
                                 <th>Cliente / Cédula</th>
                                 <th>Turno</th>
                                 <th>Producto / Tipo</th>
-                                <th>NIP / OT</th>
+                                <th>NIP / OT / RADIC</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -353,7 +348,7 @@
                                 <th>Producto</th>
                                 <th>Tipo</th>
                                 <th>Valor</th>
-                                <th>NIP/OT</th>
+                                <th>NIP / OT / RADIC</th>
                                 <th>Estado</th>
                                 <th>Hora</th>
                             </tr>
@@ -379,12 +374,11 @@
 
     </div>
 
-    <div class="toast" id="toast">Registro guardado con éxito</div>
+    <div class="toast" id="toast">Registro guardado en Digiver Cloud</div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
 
-        // TECLADO: SHIFT + N Y ESCAPE
         window.addEventListener('keydown', (e) => {
             if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
                 if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
@@ -408,7 +402,6 @@
             }
         }
 
-        // LÓGICA INTELLIGENT DE CAMPOS Y ESTADOS CONDICIONALES
         function actualizarTiposYEstados() {
             const producto = document.getElementById("inProducto").value;
             const selectTipo = document.getElementById("inTipo");
@@ -459,7 +452,6 @@
             }
         }
 
-        // CARGA DE DATOS ASÍNCRONA JSONP
         function cargarDatos() {
             const currentMonth = new Date().toISOString().substring(0, 7);
             document.getElementById("mesLabel").innerText = currentMonth;
@@ -496,7 +488,9 @@
                 if (g.Estado === "Digitado") badgeClass = "badge-digitado";
                 if (g.Estado === "Pendiente") badgeClass = "badge-pendiente";
 
-                // Fila Historial General
+                const ordenValor = g.Orden || g.NipOt || '—'; // Muestra la columna 'Orden'
+
+                // Historial
                 htmlHistorial += `
                     <tr>
                         <td><b>${g.Nombre || '—'}</b></td>
@@ -504,13 +498,13 @@
                         <td>${g.Producto}</td>
                         <td>${g.Tipo}</td>
                         <td>${g.Valor ? '$' + Number(g.Valor).toLocaleString('es-CO') : '—'}</td>
-                        <td>${g.Orden || '—'}</td>
-                        <td><span class="badge ${badgeClass}">${g.Estado}</span></td>
+                        <td>${ordenValor}</td>
+                        <td><span class="badge ${badgeClass}">${g.Estado || 'OK'}</span></td>
                         <td><span style="color: var(--text-muted); font-size: 8pt;">${g.Hora || ''}</span></td>
                     </tr>
                 `;
 
-                // Fila Panel de Pendientes / Instalaciones
+                // Pendientes / Seguimiento
                 if (g.Estado === "Digitado" || g.Estado === "Pendiente") {
                     cantPendientes++;
                     htmlPendientes += `
@@ -519,7 +513,7 @@
                             <td>${g.Nombre || 'Sin nombre'} (${g.Cedula || 'N/A'})</td>
                             <td><span style="font-family: monospace; font-weight: bold;">${g.Turno}</span></td>
                             <td>${g.Producto} - ${g.Tipo}</td>
-                            <td>${g.Orden || '—'}</td>
+                            <td>${ordenValor}</td>
                             <td><span class="badge ${badgeClass}">${g.Estado}</span></td>
                         </tr>
                     `;
@@ -568,7 +562,6 @@
             kpiList.innerHTML = html || '<p style="color: var(--text-muted); font-size: 9pt;">Sin metas configuradas.</p>';
         }
 
-        // GUARDADO DE REGISTRO
         function guardarRegistroSmart() {
             const nombre = encodeURIComponent(document.getElementById("inNombre").value.trim());
             const cedula = encodeURIComponent(document.getElementById("inCedula").value.trim());
@@ -593,7 +586,6 @@
             fetch(url, { method: "GET", mode: "no-cors" })
             .then(() => {
                 showToast();
-                // Limpiar Formulario
                 document.getElementById("inNombre").value = "";
                 document.getElementById("inCedula").value = "";
                 document.getElementById("inTurno").value = "";
