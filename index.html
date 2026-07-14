@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digiver — Operations Control</title>
+    <title>Digiver — Operations Workspace</title>
     <style>
         :root {
-            --bg-body: #f8f9fa;
+            --bg-body: #f4f5f7;
             --surface: #ffffff;
-            --surface-hover: #f3f4f6;
-            --text-main: #111827;
-            --text-muted: #6b7280;
+            --surface-hover: #fafafa;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --brand-red: #da291c;
             --brand-red-hover: #b31d14;
-            --border-color: #e5e7eb;
-            --border-strong: #d1d5db;
+            --border-color: #e2e8f0;
+            --border-strong: #cbd5e1;
             
             --action-green: #10b981;
             --action-green-bg: #ecfdf5;
@@ -23,8 +23,8 @@
             --action-cyan: #0ea5e9;
             --action-cyan-bg: #f0f9ff;
             
-            --radius-lg: 12px;
-            --radius-md: 8px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
             --radius-sm: 6px;
         }
 
@@ -40,38 +40,83 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             font-size: 10pt;
-            padding: 20px;
+            padding: 24px;
         }
 
+        /* HEADER INMERSIVO CON BARRAS LATERALES DE ESTADO */
         .workspace-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             max-width: 1400px;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 24px auto;
             background: var(--surface);
             padding: 16px 24px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            border-left: 6px solid var(--brand-red);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            position: relative;
+            overflow: hidden;
         }
 
-        .brand-logo { display: flex; align-items: center; gap: 12px; }
+        .workspace-header::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 5px;
+            background: var(--brand-red);
+        }
+
+        .brand-logo { display: flex; align-items: center; gap: 14px; }
         .brand-logo .logo-badge {
             background: var(--brand-red);
             color: white;
             font-weight: 900;
             font-size: 11pt;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: var(--radius-sm);
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(218, 41, 28, 0.25);
         }
-        .brand-logo h1 { font-size: 15pt; font-weight: 800; color: var(--text-main); }
+        .brand-logo h1 { font-size: 16pt; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px; }
+        .brand-logo p { font-size: 8.5pt; color: var(--text-muted); }
 
+        /* PULSO DE SINCRONIZACIÓN EN TIEMPO REAL */
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-body);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--action-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* BOTONES DE ALTO RENDIMIENTO */
         button {
             background: var(--surface);
             color: var(--text-main);
             border: 1px solid var(--border-strong);
-            padding: 8px 14px;
+            padding: 9px 16px;
             border-radius: var(--radius-sm);
             font-size: 9pt;
             font-weight: 700;
@@ -79,37 +124,52 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: all 0.15s ease-out;
         }
 
-        button.btn-primary { background: var(--brand-red); border-color: var(--brand-red); color: white; }
-        button.btn-primary:hover { background: var(--brand-red-hover); }
+        button.btn-primary { 
+            background: var(--brand-red); 
+            border-color: var(--brand-red); 
+            color: white; 
+            box-shadow: 0 2px 8px rgba(218, 41, 28, 0.2);
+        }
+        
+        button.btn-primary:hover { 
+            background: var(--brand-red-hover); 
+            transform: translateY(-1px);
+        }
 
-        .badge-shortcut { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 8pt; }
-        button.btn-primary .badge-shortcut { background: rgba(255,255,255,0.25); color: white; }
+        button.btn-primary:active { transform: translateY(0); }
 
+        .badge-shortcut { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 8pt; }
+        button.btn-primary .badge-shortcut { background: rgba(255,255,255,0.22); color: white; }
+
+        /* SMART COMMAND BAR CON ANIMACIÓN FLUIDA */
         .smart-editor-card {
             background: var(--surface);
-            border: 2px solid var(--brand-red);
+            border: 1.5px solid var(--brand-red);
             border-radius: var(--radius-lg);
-            padding: 18px;
+            padding: 20px;
             max-width: 1400px;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 24px auto;
             display: none;
-            animation: fadeIn 0.15s ease-out;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 25px -5px rgba(218, 41, 28, 0.1);
         }
 
-        .smart-editor-card.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-6px); }
-            to { opacity: 1; transform: translateY(0); }
+        .smart-editor-card.active { 
+            display: block; 
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .grid-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .field-box label {
@@ -117,19 +177,21 @@
             font-size: 8pt;
             font-weight: 800;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .field-box input, .field-box select {
             width: 100%;
             background: var(--bg-body);
-            border: 1px solid var(--border-strong);
+            border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 7px 10px;
+            padding: 8px 10px;
             border-radius: var(--radius-sm);
             font-size: 9pt;
             outline: none;
+            transition: border-color 0.15s ease, background 0.15s ease;
         }
 
         .field-box input:focus, .field-box select:focus {
@@ -137,10 +199,11 @@
             background: var(--surface);
         }
 
+        /* ESTRUCTURA DE PANELES */
         .workspace-layout {
             display: grid;
             grid-template-columns: 1fr 340px;
-            gap: 20px;
+            gap: 24px;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -149,25 +212,30 @@
             background: var(--surface);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: opacity 0.2s ease;
         }
+
+        .panel.reloading { opacity: 0.6; }
 
         .panel-header {
             font-weight: 800;
             font-size: 11pt;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--bg-body);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
 
+        /* TABLAS ELEGANTES Y NÍ TIDAS */
         .table-container { width: 100%; overflow-x: auto; }
         .digiver-table { width: 100%; border-collapse: collapse; text-align: left; }
         .digiver-table th {
-            padding: 9px 10px;
+            padding: 10px 12px;
             color: var(--text-muted);
             font-size: 8pt;
             font-weight: 700;
@@ -175,12 +243,18 @@
             background: var(--bg-body);
             border-bottom: 1px solid var(--border-color);
         }
-        .digiver-table td { padding: 9px 10px; border-bottom: 1px solid var(--border-color); font-size: 9pt; }
+        .digiver-table td { 
+            padding: 11px 12px; 
+            border-bottom: 1px solid var(--border-color); 
+            font-size: 9pt;
+            transition: background 0.1s ease;
+        }
+        .digiver-table tr:hover td { background: var(--surface-hover); }
 
         .badge {
             display: inline-block;
-            padding: 2px 7px;
-            border-radius: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
             font-size: 7.5pt;
             font-weight: 800;
             text-transform: uppercase;
@@ -189,13 +263,13 @@
         .badge-digitado { background: var(--action-cyan-bg); color: var(--action-cyan); border: 1px solid #bae6fd; }
         .badge-pendiente { background: var(--action-yellow-bg); color: #b45309; border: 1px solid #fde68a; }
 
-        /* BARRAS DE PROGRESO COMPUESTAS (OK + DIGITADO EN GRIS) */
-        .kpi-item { margin-bottom: 18px; }
-        .kpi-meta-header { display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 4px; }
+        /* BARRAS DE PROGRESO COMPUESTAS */
+        .kpi-item { margin-bottom: 20px; }
+        .kpi-meta-header { display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 6px; }
         .kpi-bar-bg {
             height: 10px;
             background: var(--bg-body);
-            border-radius: 5px;
+            border-radius: 6px;
             overflow: hidden;
             border: 1px solid var(--border-color);
             display: flex;
@@ -203,56 +277,110 @@
         .kpi-bar-ok {
             height: 100%;
             background: var(--action-green);
-            transition: width 0.4s ease;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .kpi-bar-digitado {
             height: 100%;
-            background: #9ca3af; /* Gris para representar lo Digitado/Proyección */
-            transition: width 0.4s ease;
+            background: #9ca3af;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .kpi-legend {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             font-size: 7.5pt;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 6px;
             font-weight: 600;
         }
         .kpi-legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
+        /* CARGADOR CIRCULAR ULTRA SUTIL Y PRO */
+        .spinner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 0;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 8.5pt;
+            font-weight: 600;
+        }
+
+        .spinner-round {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--brand-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner-button {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* TOAST PREMIUM */
         .toast {
             position: fixed;
-            bottom: 20px; right: 20px;
+            bottom: 24px; right: 24px;
             background: var(--text-main); color: white;
-            padding: 10px 18px; border-radius: var(--radius-md);
-            font-size: 9pt; font-weight: 700; display: none;
-            border-left: 4px solid var(--action-green); z-index: 1000;
+            padding: 12px 20px; border-radius: var(--radius-md);
+            font-size: 9pt; font-weight: 700;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 10px;
+            border-left: 4px solid var(--action-green);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
+    <!-- HEADER PRINCIPAL -->
     <div class="workspace-header">
         <div class="brand-logo">
             <span class="logo-badge">DV</span>
             <div>
                 <h1>Digiver</h1>
-                <p>Módulo de Operaciones, Turnos y Seguimiento</p>
+                <p>Gestión de Turnos & Objetivos Operativos</p>
             </div>
         </div>
-        <div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="live-status">
+                <span class="live-dot"></span>
+                <span id="syncStatusText">Nube Sincronizada</span>
+            </div>
             <button class="btn-primary" onclick="toggleSmartEditor(true)">
                 + Nueva Gestión <span class="badge-shortcut">Shift + N</span>
             </button>
-            <button onclick="cargarDatos()" style="margin-left: 6px;">🔄 Sincronizar</button>
         </div>
     </div>
 
+    <!-- SMART COMMAND BAR -->
     <div class="smart-editor-card" id="smartEditorCard">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-            <span style="font-weight: 800; font-size: 10pt; color: var(--brand-red);">COMPLETAR NUEVA GESTIÓN DE TURNO</span>
-            <span class="badge-shortcut">Esc para cancelar</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span style="font-weight: 800; font-size: 10.5pt; color: var(--brand-red);">COMPLETAR NUEVA GESTIÓN DE TURNO</span>
+            <span class="badge-shortcut">Esc para cerrar</span>
         </div>
 
         <div class="grid-form">
@@ -319,21 +447,25 @@
             </div>
         </div>
 
-        <div class="field-box" style="margin-bottom: 12px;">
+        <div class="field-box" style="margin-bottom: 16px;">
             <label>Detalle / Observaciones del Caso</label>
             <input type="text" id="inDetalle" placeholder="Escribe detalles o notas adicionales del turno..." onkeydown="if(event.key==='Enter') guardarRegistroSmart()">
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
             <button onclick="toggleSmartEditor(false)">Cancelar</button>
-            <button class="btn-primary" onclick="guardarRegistroSmart()">Guardar Gestión (Enter)</button>
+            <button class="btn-primary" id="btnGuardar" onclick="guardarRegistroSmart()">
+                <span id="btnGuardarText">Guardar Gestión</span>
+            </button>
         </div>
     </div>
 
+    <!-- WORKSPACE PRINCIPAL -->
     <div class="workspace-layout">
         
         <div class="main-column">
-            <div class="panel" style="border-left: 4px solid var(--action-yellow);">
+            <!-- PENDIENTES & INSTALACIONES -->
+            <div class="panel" id="panelPendientes" style="border-left: 4px solid var(--action-yellow);">
                 <div class="panel-header">
                     <span style="color: #b45309;">⚠️ Pendientes & Instalaciones Programadas</span>
                     <span id="cantPendientesBadge" style="font-size: 8.5pt; color: var(--text-muted);">0 casos</span>
@@ -352,13 +484,16 @@
                             </tr>
                         </thead>
                         <tbody id="bodyPendientes">
-                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Cargando seguimiento...</td></tr>
+                            <tr><td colspan="7">
+                                <div class="spinner-container"><div class="spinner-round"></div><span>Sincronizando seguimiento...</span></div>
+                            </td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="panel">
+            <!-- HISTORIAL GENERAL -->
+            <div class="panel" id="panelHistorial">
                 <div class="panel-header">
                     <span>Historial de Gestiones</span>
                     <span id="totalGestionesLabel" style="color: var(--text-muted); font-size: 8.5pt;">0 registros</span>
@@ -378,26 +513,36 @@
                             </tr>
                         </thead>
                         <tbody id="tableBody">
-                            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Sincronizando...</td></tr>
+                            <tr><td colspan="8">
+                                <div class="spinner-container"><div class="spinner-round"></div><span>Cargando historial...</span></div>
+                            </td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <div class="panel">
+        <!-- PANEL LATERAL DE METAS CON LOADER CIRCULAR -->
+        <div class="panel" id="panelMetas">
             <div class="panel-header">
                 <span>Objetivos del Mes</span>
                 <span id="mesLabel" style="color: var(--brand-red); font-size: 8.5pt; font-weight: 800;">-</span>
             </div>
             <div id="kpiList">
-                <p style="color: var(--text-muted); font-size: 9pt;">Cargando metas...</p>
+                <div class="spinner-container">
+                    <div class="spinner-round"></div>
+                    <span>Cargando metas...</span>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div class="toast" id="toast">Registro guardado en Digiver Cloud</div>
+    <!-- TOAST NOTIFICACIÓN -->
+    <div class="toast" id="toast">
+        <span style="font-size: 12pt;">✓</span>
+        <span>Gestión guardada exitosamente</span>
+    </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbye6AFy7yJ64Aff2J7DMOqnc5rzW34UwzNEFcocPllwi2wuPt2EjWdun_hYnaP14DuO/exec";
@@ -425,6 +570,7 @@
             return `${fFormatted} ${horaStr}`;
         }
 
+        // TECLADO: SHIFT + N Y ESC
         window.addEventListener('keydown', (e) => {
             if (e.shiftKey && (e.key === 'N' || e.key === 'n')) {
                 if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
@@ -440,11 +586,13 @@
         function toggleSmartEditor(state) {
             const card = document.getElementById("smartEditorCard");
             if (state === true) {
-                card.classList.add("active");
+                card.style.display = "block";
+                setTimeout(() => card.classList.add("active"), 10);
                 actualizarTiposYEstados();
-                setTimeout(() => document.getElementById("inNombre").focus(), 50);
+                setTimeout(() => document.getElementById("inNombre").focus(), 100);
             } else {
                 card.classList.remove("active");
+                setTimeout(() => card.style.display = "none", 200);
             }
         }
 
@@ -498,13 +646,16 @@
             }
         }
 
-        function cargarDatos() {
+        // CARGA Y SINCRONIZACIÓN AUTOMÁTICA EN SEGUNDO PLANO
+        function cargarDatos(silent = false) {
             const now = new Date();
             const monthPadded = String(now.getMonth() + 1).padStart(2, '0');
-            const currentMonthSlash = `${monthPadded}/${now.getFullYear()}`; // "07/2026"
-            const currentMonthISO = `${now.getFullYear()}-${monthPadded}`; // "2026-07"
-
+            const currentMonthSlash = `${monthPadded}/${now.getFullYear()}`;
             document.getElementById("mesLabel").innerText = currentMonthSlash;
+
+            if (!silent) {
+                document.getElementById("syncStatusText").innerText = "Sincronizando...";
+            }
 
             const oldScript = document.getElementById("jsonpScript");
             if (oldScript) oldScript.remove();
@@ -512,6 +663,9 @@
             const script = document.createElement("script");
             script.id = "jsonpScript";
             script.src = `${API_URL}?callback=procesarDatosDigiver&_=${Date.now()}`;
+            script.onerror = function() {
+                document.getElementById("syncStatusText").innerText = "Error de Conexión";
+            };
             document.body.appendChild(script);
         }
 
@@ -524,6 +678,8 @@
 
                 renderTablas(data.gestiones || []);
                 renderKPIs(data.gestiones || [], data.metas || [], currentMonthISO, currentMonthSlash);
+                
+                document.getElementById("syncStatusText").innerText = "Nube Sincronizada";
             }
         }
 
@@ -577,34 +733,28 @@
                 }
             });
 
-            bodyHistorial.innerHTML = htmlHistorial || '<tr><td colspan="8" style="text-align:center;">Sin registros.</td></tr>';
-            bodyPendientes.innerHTML = htmlPendientes || '<tr><td colspan="7" style="text-align:center; color: var(--action-green);">Al día: No tienes instalaciones o trámites pendientes.</td></tr>';
+            bodyHistorial.innerHTML = htmlHistorial || '<tr><td colspan="8" style="text-align:center; color: var(--text-muted);">Sin registros.</td></tr>';
+            bodyPendientes.innerHTML = htmlPendientes || '<tr><td colspan="7" style="text-align:center; color: var(--action-green); font-weight:600;">Al día: No tienes instalaciones o trámites pendientes.</td></tr>';
             document.getElementById("cantPendientesBadge").innerText = `${cantPendientes} por gestionar`;
         }
 
-        // CÁLCULO DE METAS CON FILAS EXACTAS DE EXCEL (C7, C8, C13, C23) + BARRAS OK VS DIGITADO
         function renderKPIs(gestiones, metas, currentMonthISO, currentMonthSlash) {
             const kpiList = document.getElementById("kpiList");
             const gestionesMes = gestiones.filter(g => g.Fecha && (g.Fecha.startsWith(currentMonthISO) || g.Fecha.includes(currentMonthSlash)));
-
-            // Filtrar metas del mes actual (busca "07/2026" o similar)
             const metasMes = metas.filter(m => m.mes === currentMonthSlash || m.mes === currentMonthISO);
 
-            // Extraer las cantidades numéricas directas de la pestaña 'Metas'
             function obtenerMeta(nombreIndicador, defaultVal) {
                 const enco = metasMes.find(m => m.indicador.toLowerCase().includes(nombreIndicador.toLowerCase()));
                 if (!enco) return defaultVal;
-                // Si la celda trae formato moneda (ej $ 35.475.317), limpiamos el string
                 const num = Number(String(enco.cantidad).replace(/[^0-9]/g, ''));
                 return num > 0 ? num : defaultVal;
             }
 
-            const metaAccesos = obtenerMeta("servicio fijo @", 9);        // C8
-            const metaPospago = obtenerMeta("total pospago", 37);         // C7
-            const metaEquipos = obtenerMeta("tecnología y terminales", 35475317); // C13
-            const metaMigraciones = obtenerMeta("migraciones brownfield", 8);  // C23
+            const metaAccesos = obtenerMeta("servicio fijo @", 9);
+            const metaPospago = obtenerMeta("total pospago", 37);
+            const metaEquipos = obtenerMeta("tecnología y terminales", 35475317);
+            const metaMigraciones = obtenerMeta("migraciones brownfield", 8);
 
-            // Conteos separados por ESTADO (OK vs DIGITADO)
             const okAccesos = gestionesMes.filter(g => g.Producto === "Internet" && g.Estado === "OK").length;
             const digAccesos = gestionesMes.filter(g => g.Producto === "Internet" && g.Estado === "Digitado").length;
 
@@ -614,7 +764,6 @@
             const okMigraciones = gestionesMes.filter(g => g.Tipo === "Migración" && g.Estado === "OK").length;
             const digMigraciones = gestionesMes.filter(g => g.Tipo === "Migración" && g.Estado === "Digitado").length;
 
-            // Para Equipos es la SUMA DE VALORES ($)
             const okEquiposVal = gestionesMes
                 .filter(g => g.Producto === "Equipo" && g.Estado === "OK")
                 .reduce((acc, g) => acc + (Number(g.Valor) || 0), 0);
@@ -622,9 +771,7 @@
                 .filter(g => g.Producto === "Equipo" && g.Estado === "Digitado")
                 .reduce((acc, g) => acc + (Number(g.Valor) || 0), 0);
 
-            // Estructura de renders
             let html = "";
-
             html += renderDoubleBar("Accesos (Servicio Fijo)", okAccesos, digAccesos, metaAccesos, false);
             html += renderDoubleBar("Móvil Pospago Total", okPospago, digPospago, metaPospago, false);
             html += renderDoubleBar("Migraciones", okMigraciones, digMigraciones, metaMigraciones, false);
@@ -634,10 +781,8 @@
         }
 
         function renderDoubleBar(titulo, valOk, valDig, target, esMoneda) {
-            const totalProyeccion = valOk + valDig;
             const pctOk = target > 0 ? Math.min(100, (valOk / target) * 100) : 0;
             const pctDig = target > 0 ? Math.min(100 - pctOk, (valDig / target) * 100) : 0;
-            const pctTotal = Math.round(pctOk + pctDig);
 
             const txtOk = esMoneda ? '$' + valOk.toLocaleString('es-CO') : valOk;
             const txtDig = esMoneda ? '$' + valDig.toLocaleString('es-CO') : valDig;
@@ -661,7 +806,11 @@
             `;
         }
 
+        // GUARDADO PRO CON RETROALIMENTACIÓN EN BOTÓN Y RECARGA
         function guardarRegistroSmart() {
+            const btn = document.getElementById("btnGuardar");
+            const btnText = document.getElementById("btnGuardarText");
+
             const nombre = encodeURIComponent(document.getElementById("inNombre").value.trim());
             const cedula = encodeURIComponent(document.getElementById("inCedula").value.trim());
             const turno = encodeURIComponent(document.getElementById("inTurno").value.trim().toUpperCase());
@@ -676,15 +825,20 @@
             const detalle = encodeURIComponent(document.getElementById("inDetalle").value.trim());
 
             if (!turno) {
-                alert("Por favor ingresa el código del turno.");
+                alert("Ingresa el código del turno para guardar.");
                 return;
             }
+
+            // CAMBIAR BOTÓN A ESTADO CARGANDO
+            btn.disabled = true;
+            btnText.innerHTML = `<span class="spinner-button"></span> Guardando...`;
 
             const url = `${API_URL}?nombre=${nombre}&cedula=${cedula}&turno=${turno}&cuenta=${cuenta}&valor=${valor}&producto=${producto}&tipo=${tipo}&orden=${orden}&marca=${marca}&estado=${estado}&fechaSeguimiento=${fechaSeguimiento}&detalle=${detalle}`;
 
             fetch(url, { method: "GET", mode: "no-cors" })
             .then(() => {
                 showToast();
+                // Limpiar campos
                 document.getElementById("inNombre").value = "";
                 document.getElementById("inCedula").value = "";
                 document.getElementById("inTurno").value = "";
@@ -693,18 +847,34 @@
                 document.getElementById("inOrden").value = "";
                 document.getElementById("inFechaSeguimiento").value = "";
                 document.getElementById("inDetalle").value = "";
+
+                // Restaurar botón
+                btn.disabled = false;
+                btnText.innerText = "Guardar Gestión";
+
                 toggleSmartEditor(false);
-                setTimeout(cargarDatos, 1000);
+
+                // Recargar paneles en segundo plano suavemente
+                setTimeout(() => cargarDatos(true), 800);
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btnText.innerText = "Guardar Gestión";
+                alert("Hubo un problema de conexión al guardar.");
             });
         }
 
         function showToast() {
             const t = document.getElementById("toast");
-            t.style.display = "block";
-            setTimeout(() => t.style.display = "none", 3000);
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 3000);
         }
 
-        window.onload = cargarDatos;
+        // CARGA INICIAL Y POLLING CADA 30 SEGUNDOS (SIN REFRESCAR PÁGINA)
+        window.onload = () => {
+            cargarDatos();
+            setInterval(() => cargarDatos(true), 30000); // Sincronización automática silenciosa
+        };
     </script>
 </body>
 </html>
